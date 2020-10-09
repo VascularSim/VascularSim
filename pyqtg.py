@@ -42,13 +42,13 @@ p3.setDownsampling(mode='peak')
 p3.setClipToView(True)
 p4.setClipToView(True)
 
-p3.setRange(xRange=[-100, 0])
+p3.setRange(xRange=[0, 3000])
 p3.setLimits(xMax=0)
 
 curve3 = p3.plot()
 curve4 = p4.plot()
 
-data3 = np.empty(100)
+data3 = np.empty(3000)
 ptr3 = 0
 
 def update2():
@@ -60,9 +60,8 @@ def update2():
         data3 = np.empty(data3.shape[0] * 2)
         data3[:tmp.shape[0]] = tmp
     curve3.setData(data3[:ptr3])
-    curve3.setPos(-ptr3, 0)
-    curve4.setData(data3[:ptr3])
-
+    curve3.setPos(-ptr3+3050, 0)
+    #curve4.setData(data3[:ptr3])
 
 # 3) Plot in chunks, adding one new plot curve for every 100 samples
 chunkSize = 100
@@ -105,7 +104,7 @@ def update():
     update2()
 timer = pg.QtCore.QTimer()
 timer.timeout.connect(update)
-timer.start(50)
+timer.start(1)
 
 
 

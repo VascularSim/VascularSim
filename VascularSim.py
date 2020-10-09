@@ -26,6 +26,7 @@ class Window(object):
         self.stopbtn = QPushButton(self.centralwidget)
 
         self.hlayout = QVBoxLayout()
+        self.hrlayout = QVBoxLayout()
         self.btn = QPushButton(self.centralwidget)
         self.btn1 = QPushButton(self.centralwidget)
         self.btn2 = QPushButton(self.centralwidget)
@@ -36,8 +37,8 @@ class Window(object):
         self.btn7 = QPushButton(self.centralwidget)
         self.btn8 = QPushButton(self.centralwidget)
         self.btn9 = QPushButton(self.centralwidget)
-
         self.timer = QTimer()
+
         self.setupUi()
 
     def setupUi(self):
@@ -63,9 +64,12 @@ class Window(object):
         self.hlayout.addWidget(self.btn6)
         self.hlayout.addWidget(self.btn7)
         self.hlayout.addWidget(self.btn8)
-        self.hlayout.addWidget(self.btn9)
+        self.hrlayout.addWidget(self.btn9)
 
         self.mainlayout.addLayout(self.hlayout, 1,0,1,1)
+        self.mainlayout.addLayout(self.hrlayout, 1,5,1,1)
+
+
         
         # ______________________________GRAPH_WIDGET - 1 _____________________________
         # ============GRAPH -1
@@ -80,13 +84,13 @@ class Window(object):
         p1.setLabel('bottom', text='y axis')
         self.curve1 = p1.plot()
         self.curve1.setPen('g')  ## white pen
-        self.curve1.setShadowPen(pg.mkPen((70,70,30), width=6, cosmetic=True))
+        #self.curve1.setShadowPen(pg.mkPen((70,70,30), width=6, cosmetic=True))
         
         #self.plotWidget_1.setLabel('left', text='x axis', **self.labelStyle )
         #self.plotWidget_1.setLabel('bottom', text='y axis', **self.labelStyle )
 
-        self.mainlayout.addWidget(plotwin, 1, 1, 1, 4)
-
+        self.mainlayout.addWidget(plotwin, 1, 1, 1, 3)
+        
         # -------------------------------MENUBAR
         self.menubar.setObjectName("menubar")
 
@@ -149,11 +153,11 @@ class Window(object):
         self.actionQuit.setText("Quit")
 
     def stylesheet(self):
+        self.menubar.setStyleSheet("background-color: rgb(60,60,60); color: rgb(240,240,240); ")
+        
         self.centralwidget.setStyleSheet(""" 
             QPushButton{  background-color: rgb(60,60,60); color: rgb(240,240,240); } """)
-        self.menubar.setStyleSheet("background-color: rgb(60,60,60); color: rgb(240,240,240); ")
-        #self.centralwidget.setStyleSheet()
-
+   
     def update(self):
         global data1, ptr1
 
@@ -178,10 +182,9 @@ class Window(object):
         self.curve1.setPos(-ptr1+3050, 0)
         #curve4.setData(data3[:ptr3])
 
-
     def run(self):
         #main.main()
-
+        
         connection = sql.connect("vascularsim.db")
         cursor = connection.cursor()
         cursor.execute("SELECT FLAG FROM HPN WHERE ID = 1")
@@ -205,4 +208,5 @@ if __name__ == "__main__":
     ui = Window(wid)
     wid.show()
     sys.exit(app.exec())    
+
 
