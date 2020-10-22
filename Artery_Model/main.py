@@ -3,8 +3,6 @@ from scipy.integrate import solve_ivp
 import sys
 import sqlite3 as sql
 import math
-import time
-import matplotlib.pyplot as plt
 
 
 def pulsegen(t, x, R1, L, R2, C, clock, it):
@@ -192,7 +190,6 @@ def p_wav(x,a_pwav,d_pwav,t_pwav,li):
 
     return [pwav]
 
-
 def qrs_wav(x,a_qrswav,d_qrswav,li):
     l=li
     a=a_qrswav
@@ -208,7 +205,6 @@ def qrs_wav(x,a_qrswav,d_qrswav,li):
     qrswav=qrs1+qrs2
 
     return [qrswav]
-
 
 def q_wav(x,a_qwav,d_qwav,t_qwav,li):
     l=li
@@ -226,7 +222,6 @@ def q_wav(x,a_qwav,d_qwav,t_qwav,li):
 
     return [qwav]
 
-
 def s_wav(x,a_swav,d_swav,t_swav,li):
     l=li
     x=x-t_swav
@@ -242,7 +237,6 @@ def s_wav(x,a_swav,d_swav,t_swav,li):
     swav=-1*(s1+s2)
 
     return [swav]
-
 
 def t_wav(x,a_twav,d_twav,t_twav,li):
     l=li
@@ -260,7 +254,6 @@ def t_wav(x,a_twav,d_twav,t_twav,li):
     twav=a*twav1
 
     return [twav]
-
 
 def u_wav(x,a_uwav,d_uwav,t_uwav,li):
     l=li
@@ -281,154 +274,122 @@ def u_wav(x,a_uwav,d_uwav,t_uwav,li):
 
 
 def main():
+    try:
+        stecg = 0.16
+        etecg = 1.16
+        ecg = []
 
-    stecg = 0.16
-    etecg = 1.16
-    ecg = []
+        PF = 450
+        n = 100
 
-    PF = 450
-    n = 100
+        path = 'Artery_Model/Datas/RLCtru.txt'
+        rlctru = np.genfromtxt(path, delimiter=',')
+        Rs = rlctru[:, 0]
+        L = rlctru[:, 1]
+        C = rlctru[:, 2]
+        Rp = rlctru[:, 3]
+        dt = 0.002
 
-    path = 'Artery_Model/Datas/RLCtru.txt'
-    rlctru = np.genfromtxt(path, delimiter=',')
-    Rs = rlctru[:, 0]
-    L = rlctru[:, 1]
-    C = rlctru[:, 2]
-    Rp = rlctru[:, 3]
-    dt = 0.002
+        # All dynamic values
+        pgen = np.zeros(shape=(2,1))
+        sgen = np.zeros(126)
+        i = 0
+        st = 0
+        et = 1
+        ind = 0
 
-    # All dynamic values
-    pgen = np.zeros(shape=(2,1))
-    sgen = np.zeros(126)
-    i = 0
-    st = 0
-    et = 1
+        ecgClock = np.arange(stecg, etecg, 0.002)
 
-    ind = 0
-
-    ecgClock = np.arange(0, 1, 0.002)
-
-    while i < n:
-
-        print("loop started")
-
-        connection = sql.connect("vascularsim.db")
-        cursor = connection.cursor()
-        cursor.execute("SELECT HR FROM HPN WHERE ID = 1")
-        rows = cursor.fetchone()
-        HR = rows[0]
-        connection.close()
-
-        #############################################################
-
-        li = 30 / HR
-
-        a_pwav, d_pwav = 0.25, 0.09
-        t_pwav = 0.16
-
-        a_qwav = 0.025
-        d_qwav = 0.066
-        t_qwav = 0.166
-
-        a_qrswav = 1.6
-        d_qrswav = 0.11
-
-        a_swav = 0.25
-        d_swav = 0.066
-        t_swav = 0.09
-
-        a_twav = 0.35
-        d_twav = 0.142
-        t_twav = 0.2
-
-        a_uwav = 0.035
-        d_uwav = 0.0476/ 40
-        t_uwav = 0.433 / 100
-
-        pwav = p_wav(ecgClock, a_pwav, d_pwav, t_pwav, li)
-
-        qwav = q_wav(ecgClock, a_qwav, d_qwav, t_qwav, li)
-
-        qrswav = qrs_wav(ecgClock, a_qrswav, d_qrswav, li)
-
-        swav = s_wav(ecgClock, a_swav, d_swav, t_swav, li)
-
-        twav = t_wav(ecgClock, a_twav, d_twav, t_twav, li)
-
-        uwav = u_wav(ecgClock, a_uwav, d_uwav, t_uwav, li)
-
-        temp = np.add(pwav, qrswav)
-        temp = np.add(temp, twav)
-        temp = np.add(temp, swav)
-        temp = np.add(temp, qwav)
-        ecg = np.add(temp, uwav)
-
-        stecg = stecg + 1
-        etecg = etecg + 1
-
-        #############################################################
-
-        T = 60 / HR
-        clock = np.arange(0, et, dt)
-        t1 = clock / T
-        t2 = t1 - np.floor(t1)
-        t3 = np.multiply(T, t2)
-        x1 = PF * (np.square(np.sin(3.14 * t3 / 0.3)))
-        x2 = np.floor(t3 + 0.7)
-        R1 = 0.11
-        L = 0.011
-        R2 = 1.11
-        C = 0.91
-
-        it = np.multiply((1 - x2), x1)
-
-        pulse_generator = lambda t, x: pulsegen(t, x, R1, L, R2, C, clock, it)
-        output_pulse = solve_ivp(pulse_generator, [st, et], [pgen[0, -1], pgen[1, -1]], method='Radau', t_eval=np.arange(st,et,dt))
-
-        x = output_pulse.y
-
-        if i == 0:
-            pgen = np.delete(pgen, 0, 1)
-        
-        pgen = np.append(pgen, x, axis=1)
-        pu = it.transpose()
-        pulse = (pu - pgen[0, :]) * R1 + pgen[1, :]
-
-        system_finder = lambda t, x: integrated_ode(t, x, pulse, clock)
-
-        if i == 0:
-            sol = solve_ivp(system_finder, [st, et], sgen, method='Radau', t_eval=np.arange(st,et,dt))
-            xo = sol.y
-        else:
-            sol = solve_ivp(system_finder, [st, et], sgen[:, -1], method='Radau', t_eval=np.arange(st,et,dt))
-            xo = sol.y
-
-        if i == 0:
-            sgen = xo
-        else:
-            sgen = np.append(sgen, xo, axis=1)
-
-        connection = sql.connect("vascularsim.db")
-        cursor = connection.cursor()
-        for j in range(len(xo[0])):
-            ind = ind + 1
-            cursor.execute('UPDATE BUFFER SET "one" = ?, "two" = ?, "three" = ?, "four" = ?, "five" = ?, "six" = ?, "seven" = ?, "eight" = ?, "nine" = ?, "ten" = ?, "eleven" = ?, "twelve" = ? WHERE id = ?', (xo[1,j], xo[3,j], xo[7,j], xo[7,j], xo[65,j], xo[51,j], xo[123,j], xo[101,j], xo[111,j], xo[75,j], xo[119,j], ecg[0, j], ind) )
-        connection.commit()
-        connection.close()
-
-        if i == 2:
+        while i < n:
+            #print("loop started")
             connection = sql.connect("vascularsim.db")
             cursor = connection.cursor()
-            cursor.execute('UPDATE HPN SET FLAG = 1 WHERE id = 1')
+            cursor.execute("SELECT HR FROM HPN WHERE ID = 1")
+            rows = cursor.fetchone()
+            HR = rows[0]
+            connection.close()
+            #############################################################
+            li = 30 / HR
+            a_pwav, d_pwav = 0.25, 0.09
+            t_pwav = 0.16
+            a_qwav = 0.025
+            d_qwav = 0.066
+            t_qwav = 0.166
+            a_qrswav = 1.6
+            d_qrswav = 0.11
+            a_swav = 0.25
+            d_swav = 0.066
+            t_swav = 0.09
+            a_twav = 0.35
+            d_twav = 0.142
+            t_twav = 0.2
+            a_uwav = 0.035
+            d_uwav = 0.0476/ 40
+            t_uwav = 0.433 / 100
+            pwav = p_wav(ecgClock, a_pwav, d_pwav, t_pwav, li)
+            qwav = q_wav(ecgClock, a_qwav, d_qwav, t_qwav, li)
+            qrswav = qrs_wav(ecgClock, a_qrswav, d_qrswav, li)
+            swav = s_wav(ecgClock, a_swav, d_swav, t_swav, li)
+            twav = t_wav(ecgClock, a_twav, d_twav, t_twav, li)
+            uwav = u_wav(ecgClock, a_uwav, d_uwav, t_uwav, li)
+            temp = np.add(pwav, qrswav)
+            temp = np.add(temp, twav)
+            temp = np.add(temp, swav)
+            temp = np.add(temp, qwav)
+            ecg = np.add(temp, uwav)
+            stecg = stecg + 1
+            etecg = etecg + 1
+            #############################################################
+            T = 60 / HR
+            clock = np.arange(0, et, dt)
+            t1 = clock / T
+            t2 = t1 - np.floor(t1)
+            t3 = np.multiply(T, t2)
+            x1 = PF * (np.square(np.sin(3.14 * t3 / 0.3)))
+            x2 = np.floor(t3 + 0.7)
+            R1 = 0.11
+            L = 0.011
+            R2 = 1.11
+            C = 0.91
+            it = np.multiply((1 - x2), x1)
+            pulse_generator = lambda t, x: pulsegen(t, x, R1, L, R2, C, clock, it)
+            output_pulse = solve_ivp(pulse_generator, [st, et], [pgen[0, -1], pgen[1, -1]], method='Radau', t_eval=np.arange(st,et,dt))
+            x = output_pulse.y
+            if i == 0:
+                pgen = np.delete(pgen, 0, 1)
+            pgen = np.append(pgen, x, axis=1)
+            pu = it.transpose()
+            pulse = (pu - pgen[0, :]) * R1 + pgen[1, :]
+            system_finder = lambda t, x: integrated_ode(t, x, pulse, clock)
+            if i == 0:
+                sol = solve_ivp(system_finder, [st, et], sgen, method='Radau', t_eval=np.arange(st,et,dt))
+                xo = sol.y
+            else:
+                sol = solve_ivp(system_finder, [st, et], sgen[:, -1], method='Radau', t_eval=np.arange(st,et,dt))
+                xo = sol.y
+            if i == 0:
+                sgen = xo
+            else:
+                sgen = np.append(sgen, xo, axis=1)
+            connection = sql.connect("vascularsim.db")
+            cursor = connection.cursor()
+            for j in range(len(xo[0])):
+                ind = ind + 1
+                cursor.execute('UPDATE BUFFER SET "one" = ?, "two" = ?, "three" = ?, "four" = ?, "five" = ?, "six" = ?, "seven" = ?, "eight" = ?, "nine" = ?, "ten" = ?, "eleven" = ?, "twelve" = ? WHERE id = ?', (xo[1,j], xo[3,j], xo[7,j], xo[7,j], xo[65,j], xo[51,j], xo[123,j], xo[101,j], xo[111,j], xo[75,j], xo[119,j], ecg[0, j], ind) )
             connection.commit()
             connection.close()
+            if i == 2:
+                connection = sql.connect("vascularsim.db")
+                cursor = connection.cursor()
+                cursor.execute('UPDATE HPN SET FLAG = 1 WHERE id = 1')
+                connection.commit()
+                connection.close()
+            if ind == 20000:
+                ind = 0
+            st = st+1
+            et = et+1
+            i = i+1
+    except e as Exception:
+        print(str(e))    
 
-        if ind == 20000:
-            ind = 0
-
-        st = st+1
-        et = et+1
-        i = i+1
-    
-
-
+main()
