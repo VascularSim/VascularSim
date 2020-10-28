@@ -3,7 +3,7 @@ from scipy.integrate import solve_ivp
 import sys
 import sqlite3 as sql
 import math
-#import time
+
 
 def pulsegen(t, x, R1, L, R2, C, clock, it):
     i1 = np.interp(t, clock, it)
@@ -434,28 +434,33 @@ def main():
         L = rlctru[:, 1]
         C = rlctru[:, 2]
         Rp = rlctru[:, 3]
-        dt = 0.01
+
+        dt = 0.002
 
         # All dynamic values
         pgen = np.zeros(shape=(2,1))
         sgen = np.zeros(256)
+
         i = 0
         st = 0
+
         et = 1
         ind = 0
 
-        ecgClock = np.arange(stecg, etecg, 0.001)
-
-        while i < 10:
+        ecgClock = np.arange(stecg, etecg, 0.002)
+ 
+        while i < n:
             #srt = time.time()
-            #print("loop started")
+
             connection = sql.connect("vascularsim.db")
             cursor = connection.cursor()
             cursor.execute("SELECT HR FROM HPN WHERE ID = 1")
             rows = cursor.fetchone()
             HR = rows[0]
             connection.close()
+
             #############################################################
+
             li = 30 / HR
             a_pwav, d_pwav = 0.25, 0.09
             t_pwav = 0.16
@@ -486,6 +491,7 @@ def main():
             ecg = np.add(temp, uwav)
             stecg = stecg + 1
             etecg = etecg + 1
+
             #############################################################
 
             T = 60 / HR
@@ -519,6 +525,7 @@ def main():
             else:
                 sol = solve_ivp(system_finder, [st, et], sgen[:, -1], method='Radau', t_eval=np.arange(st,et,dt))
                 xo = sol.y
+            
             if i == 0:
                 sgen = xo
             else:
@@ -539,11 +546,12 @@ def main():
                 connection.commit()
                 connection.close()
             
-            if ind == 1000:
+            if ind == 10000:
                 ind = 0
             st = st+1
             et = et+1
             i = i+1
+
             #end = time.time()
             #print(end - srt)
 

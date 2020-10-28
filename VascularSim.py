@@ -10,13 +10,13 @@ from PyQt5.QtWidgets import *
 
 import queries
 
-data1 = np.empty(500)
-data2 = np.empty(500)
-data3 = np.empty(500)
-data4 = np.empty(500)
+speed = 40
+data1 = np.empty(2000)
+data2 = np.empty(2000)
+data3 = np.empty(2000)
+data4 = np.empty(2000)
 ptr1 = 0
 index = [1, 1]
-cnt1 = 0
 graph_optn = ["twelve","one","seven","nine"]
 
 rd_btn_val = 0
@@ -84,7 +84,8 @@ class Window(object):
         self.MainWindow.setObjectName("MainWindow")
         self.MainWindow.setWindowTitle("VascularSim")
         self.MainWindow.setWindowIcon(QIcon('./VascularSim.ico'))
-        self.MainWindow.resize(1200,800)
+        self.MainWindow.resize(1000,600)
+        
 
         #CENTRAL WIDGET
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -310,7 +311,7 @@ class Window(object):
         def set_Graph_optn(obj):
             obj.setDownsampling(mode='peak')
             obj.setClipToView(True)
-            obj.setRange(xRange=[0, 500])
+            obj.setRange(xRange=[0, np.size(data1)])
             obj.setLabel('left', text='y axis')
             obj.setLabel('bottom', text='x axis')
         
@@ -391,7 +392,6 @@ class Window(object):
         self.hrbox.setText("72")
 
         def db_update():
-            
             connection = sql.connect("vascularsim.db")
             cursor = connection.cursor()
             cursor.execute('UPDATE HPN SET HR = ' + self.hrbox.text() + ', PF = ' +  self.flowbox.text() + ' WHERE id = 1')
@@ -434,6 +434,31 @@ class Window(object):
         self.flowbox.setMaxLength(5)
         self.flowbox.returnPressed.connect(db_update)
         self.grlayout.addWidget(self.flowbox, 5, 0, 1, 1)
+
+        # SLIDER 
+        def  valueChanged():
+            global speed
+            range = self.slider.value()
+            self.slider_label.setText(str(range))
+            speed = range
+            self.timer_speed()
+            
+        hlayout = QHBoxLayout()
+
+        self.slider = QSlider(  orientation=Qt.Horizontal, parent=self.centralwidget)
+        self.slider.setMinimum(0)
+        self.slider.setMaximum(90)
+        self.slider.setValue(40)
+        self.slider.setTickPosition(QSlider.TicksBelow)
+        self.slider.setTickInterval(10)
+        self.slider.valueChanged.connect(valueChanged)
+
+        self.slider_label = QLabel("40")
+        self.slider_label.setFont(QFont("sanserif", 20))
+
+        hlayout.addWidget(self.slider)
+        hlayout.addWidget(self.slider_label)
+        self.grlayout.addLayout(hlayout, 7, 0, 1, 2)
 
         self.gridLayout_3 = QGridLayout()
         self.gridLayout_3.setSizeConstraint(QLayout.SetDefaultConstraint)
@@ -478,8 +503,6 @@ class Window(object):
         self.Valexperimentlbl = QLabel(self.centralwidget)
         self.grid_patient_profile.addWidget(self.Valexperimentlbl, 2, 1, 1, 1)
         self.grlayout.addLayout(self.grid_patient_profile, 0, 1, 1, 1)
-
-        
 
         self.mainlayout.addLayout(self.grlayout, 0,3,11,1)
         
@@ -558,7 +581,7 @@ class Window(object):
         self.menuAbout.addAction(self.actionUser_manual)
         self.menuAbout.addAction(self.actionAbout)
         self.menuAbout.addAction(self.actionDevelopers)
-    
+
         self.menuFile.addSeparator()
         self.menuFile.addSeparator()
         self.menuSimulation.addSeparator()
@@ -675,63 +698,64 @@ class Window(object):
         self.flowlabel.setStyleSheet("background-color: rgb(30,30,30); height: 10")
         self.flowbox.setStyleSheet("background-color: rgb(30,30,30); border: 0px ; color: rgb(255, 255, 255); height: 50; font: 49px;")
 
+        self.slider.setStyleSheet("color: rgb(240,240,240); background-color: rgb(30,30,30);")
+
         self.patprof.setStyleSheet("background-color: rgb(30,30,30); height: 10; color: rgb(6, 247, 0);")
-        self.valpatprof.setStyleSheet("image:url(C:/Users/arvin/Documents/GitHub/VascularSim/img/off.png);")
+        self.valpatprof.setStyleSheet("image:url(./img/off.png);")
 
         self.experimentlbl.setStyleSheet("background-color: rgb(30,30,30); height: 10; color: rgb(6, 247, 0);")
-        self.Valexperimentlbl.setStyleSheet("image:url(C:/Users/arvin/Documents/GitHub/VascularSim/img/off.png);")
+        self.Valexperimentlbl.setStyleSheet("image:url(./img/off.png);")
 
         self.stenosis_lbl_top.setStyleSheet("background-color: rgb(30,30,30); height: 10; color: rgb(6, 247, 0);")
-        self.Valstenosis_lbl_top.setStyleSheet("image:url(C:/Users/arvin/Documents/GitHub/VascularSim/img/off.png);")
+        self.Valstenosis_lbl_top.setStyleSheet("image:url(./img/off.png);")
 
     def update(self):
-        global data1, data2, data3, data4, ptr1, index, graph_optn, cnt1
+        global data1, data2, data3, data4, ptr1, index, graph_optn
 
         def retrieve():
             
             connection = sql.connect("vascularsim.db")
             cursor = connection.cursor()
             
-            
-            cursor.execute(' SELECT ' + graph_optn[0] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 2 ) )
+            cursor.execute(' SELECT ' + graph_optn[0] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 5 ) )
             rows = cursor.fetchall()
             zero = [item for t in rows for item in t]
 
-            cursor.execute(' SELECT ' + graph_optn[1] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 2 ) )
+            cursor.execute(' SELECT ' + graph_optn[1] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 5 ) )
             rows = cursor.fetchall()
             one = [item for t in rows for item in t]
             
-            cursor.execute(' SELECT ' + graph_optn[2] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 2 ) )
+            cursor.execute(' SELECT ' + graph_optn[2] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 5 ) )
             rows = cursor.fetchall()
             two = [item for t in rows for item in t]
 
-            cursor.execute(' SELECT ' + graph_optn[3] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 2 ) )
+            cursor.execute(' SELECT ' + graph_optn[3] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 5 ) )
             rows = cursor.fetchall()
             three = [item for t in rows for item in t]
 
             connection.close()
-            index[0] = index[0] + 2
+            index[0] = index[0] + 5
         
             return one, zero, two, three
         
         connection = sql.connect("vascularsim.db")
         cursor = connection.cursor()
         cursor.execute("SELECT FLAG FROM HPN WHERE ID = 1")
-        rows = cursor.fetchone()
+        flag = cursor.fetchone()
         connection.close()
 
-        if rows[0] == 1:
-            print("value : ",index)
-            if index[1] == 501:
-                index[0] = 501 #331 
-                index[1] = 251 #166 
+        if flag[0] == 1:
+            #print(index)
+            if index[1] == 2000:
+                index[0] = 1
+                index[1] = 1
 
             if ptr1 >= data1.shape[0]:
                 
-                temp = data1[2:]
-                temp1 = data2[2:]
-                temp2 = data3[2:]
-                temp3 = data4[2:]
+                temp = data1[5:]
+                temp1 = data2[5:]
+                temp2 = data3[5:]
+                temp3 = data4[5:]
 
                 val, val1, val2, val3 = retrieve()
 
@@ -740,43 +764,59 @@ class Window(object):
                 data3 = np.append(temp2, val2)
                 data4 = np.append(temp3, val3)
 
-                self.curve1.setData(data2)  
+                self.curve1.setData(data2)
                 self.curve2.setData(data1)
                 self.curve3.setData(data3)
                 self.curve4.setData(data4)
 
-                ptr1 += 2
+                ptr1 += 5
                 index[1] += 1
 
             else:
                 val, val1, val2, val3 = retrieve()
 
-                data1[ptr1 : index[1]*2] = val[0:2]
-                data2[ptr1 : index[1]*2] = val1[0:2]
-                data3[ptr1 : index[1]*2] = val2[0:2]
-                data4[ptr1 : index[1]*2] = val3[0:2]
+                data1[ptr1 : index[1]*5] = val[0:5]
+                data2[ptr1 : index[1]*5] = val1[0:5]
+                data3[ptr1 : index[1]*5] = val2[0:5]
+                data4[ptr1 : index[1]*5] = val3[0:5]
 
-                self.curve1.setData(data2[: index[1]*2])
-                self.curve2.setData(data1[: index[1]*2])
-                self.curve3.setData(data3[: index[1]*2])
-                self.curve4.setData(data4[: index[1]*2])
+                self.curve1.setData(data2[: index[1]*5])
+                self.curve2.setData(data1[: index[1]*5])
+                self.curve3.setData(data3[: index[1]*5])
+                self.curve4.setData(data4[: index[1]*5])
                 #self.curve1.setPos(-ptr1+3050, 0)
 
-                ptr1 += 2
+                ptr1 += 5
                 index[1] += 1
 
+    def timer_speed(self):
+        global speed
+        self.timer.start(speed)
+
     def run(self):
+
+        def process_exists(process_name):
+            call = 'TASKLIST', '/FI', 'imagename eq %s' % process_name
+            output = subprocess.check_output(call).decode()
+            last_line = output.strip().split('\r\n')[-1]
+            return last_line.lower().startswith(process_name.lower())
+
         try:
-            path = os.path.join("Artery_Model", "main.exe")
-            subprocess.Popen(path)
+            if process_exists('main.exe'):
+                pass
+            else:
+                path = os.path.join("Artery_Model", "main.exe")
+                subprocess.Popen(path)
+                self.timer.timeout.connect(self.update)
+                self.timer_speed()
         except Exception as e:
             print(str(e))
-        
-        self.timer.timeout.connect(self.update)
-        self.timer.start(40)
 
+        
+        
     def stop(self):
         self.timer.stop()
+
 
 if __name__ == "__main__":
     import os
