@@ -1,23 +1,25 @@
 import sqlite3 as sql
+import subprocess
+from functools import partial
 
 import numpy as np
-import threading
 import pyqtgraph as pg
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-import subprocess
+import queries
 
-#from Artery_Model import main
-from Artery_Model import queries
-
-data1 = np.empty(3000)
-data2 = np.empty(3000)
-data3 = np.empty(3000)
-data4 = np.empty(3000)
+data1 = np.empty(500)
+data2 = np.empty(500)
+data3 = np.empty(500)
+data4 = np.empty(500)
 ptr1 = 0
 index = [1, 1]
+cnt1 = 0
+graph_optn = ["twelve","one","seven","nine"]
+
+rd_btn_val = 0
 
 class Window(object):
 
@@ -30,6 +32,7 @@ class Window(object):
 
         # LAYOUTSs
         self.mainlayout = QGridLayout(self.centralwidget)
+        self.graph_optn_layout = QGridLayout()
         self.grlayout = QGridLayout()
 
         # LABEL
@@ -37,6 +40,14 @@ class Window(object):
         self.sbplabel = QLabel(self.centralwidget)
         self.dbplabel = QLabel(self.centralwidget)
         self.flowlabel = QLabel(self.centralwidget)
+
+        # RADIO BUTTONS
+        self.graph1_optn = QRadioButton(self.centralwidget)
+        self.graph2_optn = QRadioButton(self.centralwidget)
+        self.graph3_optn = QRadioButton(self.centralwidget)
+        self.graph4_optn = QRadioButton(self.centralwidget)
+
+
 
         # BUTTONS
         self.playbtn = QPushButton(self.centralwidget) 
@@ -61,25 +72,19 @@ class Window(object):
         # TIMER
         self.timer = QTimer()
 
+       
         queries.query()
         
         self.setupUi()
 
-    def __del__(self):
-        os.system('taskkill /f /im main.exe')
-        #os.kill('main.exe')
-
     def setupUi(self):
+        
+        self.btn_list = [ self.btn,self.btn1,self.btn2,self.btn3,self.btn4,self.btn5,self.btn6,self.btn7,self.btn8,self.btn9, ] 
+             
         self.MainWindow.setObjectName("MainWindow")
         self.MainWindow.setWindowTitle("VascularSim")
         self.MainWindow.setWindowIcon(QIcon('./VascularSim.ico'))
         self.MainWindow.resize(1200,800)
-
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.MainWindow.sizePolicy().hasHeightForWidth())
-        self.MainWindow.setSizePolicy(sizePolicy)
 
         #CENTRAL WIDGET
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -89,86 +94,199 @@ class Window(object):
         self.centralwidget.setSizePolicy(sizePolicy)
         self.MainWindow.setCentralWidget(self.centralwidget)
 
-        # LEFT SIDE
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
+        # LEFT SIDE BUTTONS
+        def gup(btn_name):
+            global graph_optn
+            
+            if rd_btn_val == 1:
+                for i in self.btn_list:
+                    if i.styleSheet().split(" ")[1] == "rgb(0,150,255)":
+                        i.setStyleSheet("background-color: rgb(60,60,60)")
+                                       
+                
+                if btn_name == 0:
+                    self.btn.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    graph_optn[1] = "one"
 
-        sizePolicy.setHeightForWidth(self.btn.sizePolicy().hasHeightForWidth())
-        self.btn.setSizePolicy(sizePolicy)
-        self.btn.setMaximumSize(QSize(207, 1677))
-        self.mainlayout.addWidget(self.btn, 1, 0, 1, 1)
+                elif btn_name == 1:
+                    self.btn1.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    graph_optn[1] = "two"
 
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.btn1.sizePolicy().hasHeightForWidth())
-        self.btn1.setSizePolicy(sizePolicy)
-        self.btn1.setMaximumSize(QSize(207, 1677))
-        self.mainlayout.addWidget(self.btn1, 2, 0, 1, 1)
+                elif btn_name == 2:
+                    self.btn2.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    graph_optn[1] = "three"
 
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.btn2.sizePolicy().hasHeightForWidth())
-        self.btn2.setSizePolicy(sizePolicy)
-        self.btn2.setMaximumSize(QSize(207, 1677))
-        self.mainlayout.addWidget(self.btn2, 3, 0, 1, 1)
+                elif btn_name == 3:
+                    self.btn3.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    graph_optn[1] = "four"
 
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.btn3.sizePolicy().hasHeightForWidth())
-        self.btn3.setSizePolicy(sizePolicy)
-        self.btn3.setMaximumSize(QSize(207, 1677))
-        self.mainlayout.addWidget(self.btn3, 4, 0, 1, 1)
+                elif btn_name == 4:
+                    self.btn4.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    graph_optn[1] = "five"
+
+                elif btn_name == 5:
+                    self.btn5.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    graph_optn[1] = "six"
+
+                elif btn_name == 6:
+                    self.btn6.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    graph_optn[1] = "seven"
+
+                elif btn_name == 7:
+                    self.btn7.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    graph_optn[1] = "eight"
+
+                elif btn_name == 8:
+                    self.btn8.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    graph_optn[1] = "nine"
+
+                elif btn_name == 9:
+                    self.btn9.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    graph_optn[1] = "ten"
+
+            elif rd_btn_val == 2:
+                
+                for i in self.btn_list:
+                    
+                    if i.styleSheet().split(" ")[1] == "rgb(252,2,248)":
+                        i.setStyleSheet("background-color: rgb(30,30,30)")
+                
+                if btn_name == 0:
+                    self.btn.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    graph_optn[rd_btn_val] = "one"
+
+                elif btn_name == 1:
+                    self.btn1.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    graph_optn[rd_btn_val] = "two"
+
+                elif btn_name == 2:
+                    self.btn2.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    graph_optn[rd_btn_val] = "three"
+                
+                elif btn_name == 3:
+                    self.btn3.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    graph_optn[rd_btn_val] = "four"
+
+                elif btn_name == 4:
+                    self.btn4.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    graph_optn[rd_btn_val] = "five"
+
+                elif btn_name == 5:
+                    self.btn5.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    graph_optn[rd_btn_val] = "six"
+
+                elif btn_name == 6:
+                    self.btn6.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    graph_optn[rd_btn_val] = "seven"
+
+                elif btn_name == 7:
+                    self.btn7.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    graph_optn[rd_btn_val] = "eight"
+
+                elif btn_name == 8:
+                    self.btn8.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    graph_optn[rd_btn_val] = "nine"
+
+                elif btn_name == 9:
+                    self.btn9.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    graph_optn[rd_btn_val] = "ten"
+            
+            elif rd_btn_val == 3:
+
+                for i in self.btn_list:
+                    if i.styleSheet().split(" ")[1] == "rgb(200,200,0)":
+                        i.setStyleSheet("background-color: rgb(30,30,30)")
+
+                if btn_name == 0:
+                    self.btn.setStyleSheet("background-color: rgb(200,200,0)" )
+                    graph_optn[rd_btn_val] = "one"
+
+                elif btn_name == 1:
+                    self.btn1.setStyleSheet("background-color: rgb(200,200,0)" )
+                    graph_optn[rd_btn_val] = "two"
+
+                elif btn_name == 2:
+                    self.btn2.setStyleSheet("background-color: rgb(200,200,0)" )
+                    graph_optn[rd_btn_val] = "three"
+
+                elif btn_name == 3:
+                    self.btn3.setStyleSheet("background-color: rgb(200,200,0)" )
+                    graph_optn[rd_btn_val] = "four"
+
+                elif btn_name == 4:
+                    self.btn4.setStyleSheet("background-color: rgb(200,200,0)" )
+                    graph_optn[rd_btn_val] = "five"
+
+                elif btn_name == 5:
+                    self.btn5.setStyleSheet("background-color: rgb(200,200,0)" )
+                    graph_optn[rd_btn_val] = "six"
+
+                elif btn_name == 6:
+                    self.btn6.setStyleSheet("background-color: rgb(200,200,0)" )
+                    graph_optn[rd_btn_val] = "seven"
+
+                elif btn_name == 7:
+                    self.btn7.setStyleSheet("background-color: rgb(200,200,0)" )
+                    graph_optn[rd_btn_val] = "eight"
+
+                elif btn_name == 8:
+                    self.btn8.setStyleSheet("background-color: rgb(200,200,0)" )
+                    graph_optn[rd_btn_val] = "nine"
+
+                elif btn_name == 9:
+                    self.btn9.setStyleSheet("background-color: rgb(200,200,0)" )
+                    graph_optn[rd_btn_val] = "ten"
+
+        def sizepolicy(obj):
+            sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            sizePolicy.setHeightForWidth(obj.sizePolicy().hasHeightForWidth())
+            obj.setSizePolicy(sizePolicy)
+            obj.setMaximumSize(QSize(207, 1677))
+
+        sizepolicy(self.btn)
+        self.btn.clicked.connect( partial(gup, 0) ) 
+        self.mainlayout.addWidget(self.btn, 2, 0, 1, 1)
+
+        sizepolicy(self.btn1)
+        self.btn1.clicked.connect( partial(gup, 1) )         
+        self.mainlayout.addWidget(self.btn1, 3, 0, 1, 1)
+
+        sizepolicy(self.btn2)
+        self.btn2.clicked.connect( partial(gup, 2) ) 
+        self.mainlayout.addWidget(self.btn2, 4, 0, 1, 1)
+
+        sizepolicy(self.btn3)
+        self.btn3.clicked.connect( partial(gup, 3) ) 
+        self.mainlayout.addWidget(self.btn3, 5, 0, 1, 1)
         
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.btn4.sizePolicy().hasHeightForWidth())
-        self.btn4.setSizePolicy(sizePolicy)
-        self.btn4.setMaximumSize(QSize(207, 1677))
-        self.mainlayout.addWidget(self.btn4, 5, 0, 1, 1)
+        sizepolicy(self.btn4)
+        self.btn4.clicked.connect( partial(gup, 4) ) 
+        self.mainlayout.addWidget(self.btn4, 6, 0, 1, 1)
 
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.btn5.sizePolicy().hasHeightForWidth())
-        self.btn5.setSizePolicy(sizePolicy)
-        self.btn5.setMaximumSize(QSize(207, 1677))
-        self.mainlayout.addWidget(self.btn5, 6, 0, 1, 1)
+        sizepolicy(self.btn5)
+        self.btn5.clicked.connect( partial(gup, 5) ) 
+        self.mainlayout.addWidget(self.btn5, 7, 0, 1, 1)
 
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.btn6.sizePolicy().hasHeightForWidth())
-        self.btn6.setSizePolicy(sizePolicy)
-        self.btn6.setMaximumSize(QSize(207, 1677))
-        self.mainlayout.addWidget(self.btn6, 7, 0, 1, 1)
+        sizepolicy(self.btn6)
+        self.btn6.clicked.connect( partial(gup, 6) ) 
+        self.mainlayout.addWidget(self.btn6, 8, 0, 1, 1)
+        
+        sizepolicy(self.btn7)
+        self.btn7.clicked.connect( partial(gup, 7) ) 
+        self.mainlayout.addWidget(self.btn7, 9, 0, 1, 1)
 
-        sizePolicy.setHeightForWidth(self.btn7.sizePolicy().hasHeightForWidth())
-        self.btn7.setSizePolicy(sizePolicy)
-        self.btn7.setMaximumSize(QSize(207, 1677))
-        self.mainlayout.addWidget(self.btn7, 8, 0, 1, 1)
+        sizepolicy(self.btn8)
+        self.btn8.clicked.connect( partial(gup, 8) )
+        self.mainlayout.addWidget(self.btn8, 10, 0, 1, 1)
 
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.btn8.sizePolicy().hasHeightForWidth())
-        self.btn8.setSizePolicy(sizePolicy)
-        self.btn8.setMaximumSize(QSize(207, 1677))
-        self.mainlayout.addWidget(self.btn8, 9, 0, 1, 1)
-
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.btn9.sizePolicy().hasHeightForWidth())
-        self.btn9.setSizePolicy(sizePolicy)
-        self.btn9.setMaximumSize(QSize(207, 1677))
-        self.mainlayout.addWidget(self.btn9, 10, 0, 1, 1)
+        sizepolicy(self.btn9)
+        self.btn9.clicked.connect( partial(gup, 9) ) 
+        self.mainlayout.addWidget(self.btn9, 11, 0, 1, 1)
 
         # CENTER
+        
         # --------PLAY BUTTON
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(1)
@@ -189,50 +307,70 @@ class Window(object):
 
         # ______________________________GRAPH_WIDGET_____________________________
         # ============GRAPH
+        def set_Graph_optn(obj):
+            obj.setDownsampling(mode='peak')
+            obj.setClipToView(True)
+            obj.setRange(xRange=[0, 500])
+            obj.setLabel('left', text='y axis')
+            obj.setLabel('bottom', text='x axis')
+        
         pg.setConfigOptions(antialias= True, background=QColor(30,30,30,255))
         plotwin = pg.GraphicsLayoutWidget(show=True)
 
         p1 = plotwin.addPlot()
-        p1.setDownsampling(mode='peak')
-        p1.setClipToView(True)
-        p1.setRange(xRange=[0, 3000])
-        #p1.setLimits(xMax=0)
-        p1.setLabel('left', text='y axis')
-        p1.setLabel('bottom', text='x axis')
+        set_Graph_optn(p1)
         self.curve1 = p1.plot()
-        self.curve1.setPen('g')  ## white pen
+        self.curve1.setPen('g')  ## Green pen
 
         plotwin.nextRow()
         p2 = plotwin.addPlot()
-        p2.setDownsampling(mode='peak')
-        p2.setClipToView(True)
-        p2.setRange(xRange=[0, 3000])
-        p2.setLabel('left', text='y axis')
-        p2.setLabel('bottom', text='x axis')
+        set_Graph_optn(p2)
         self.curve2 = p2.plot()
-        self.curve2.setPen('g')  ## white pen
+        self.curve2.setPen('#0096ff')  ## Blue pen
 
         plotwin.nextRow()
         p3 = plotwin.addPlot()
-        p3.setDownsampling(mode='peak')
-        p3.setClipToView(True)
-        p3.setRange(xRange=[0, 3000])
-        p3.setLabel('left', text='y axis')
-        p3.setLabel('bottom', text='x axis')
+        set_Graph_optn(p3)
         self.curve3 = p3.plot()
-        self.curve3.setPen('g')  ## white pen
+        self.curve3.setPen('#fc02f8')  ## Pink pen
 
         plotwin.nextRow()
         p4 = plotwin.addPlot()
-        p4.setDownsampling(mode='peak')
-        p4.setClipToView(True)
-        p4.setRange(xRange=[0, 3000])
-        p4.setLabel('left', text='y axis')
-        p4.setLabel('bottom', text='x axis')
+        set_Graph_optn(p4)
         self.curve4 = p4.plot()
-        self.curve4.setPen('g')  ## white pen
+        self.curve4.setPen('y')  ## Yellow pen
 
-        self.mainlayout.addWidget(plotwin, 1, 1, 10, 2)     
+        self.mainlayout.addWidget(plotwin, 2, 1, 10, 2)  
+
+        def radiobtnval(type):
+            global rd_btn_val
+            if type == "r1":
+                rd_btn_val = 0
+            elif type == "r2":
+                rd_btn_val = 1
+            elif type == "r3":
+                rd_btn_val = 2
+            else:
+                rd_btn_val = 3
+        
+        self.graph1_optn.setText("GRAPH 1")   
+        self.graph_optn_layout.addWidget(self.graph1_optn, 1, 1 )
+        self.graph1_optn.clicked.connect(partial(radiobtnval, "r1" ))
+
+        self.graph2_optn.setText("GRAPH 2")   
+        self.graph_optn_layout.addWidget(self.graph2_optn, 1, 2)
+        self.graph2_optn.clicked.connect(partial(radiobtnval, "r2" ))
+
+        self.graph3_optn.setText("GRAPH 3")   
+        self.graph_optn_layout.addWidget(self.graph3_optn, 1, 3)
+        self.graph3_optn.clicked.connect(partial(radiobtnval, "r3" ))
+
+        self.graph4_optn.setText("GRAPH 4")   
+        self.graph_optn_layout.addWidget(self.graph4_optn, 1, 4)
+        self.graph4_optn.clicked.connect(partial(radiobtnval, "r4" ))
+
+        self.mainlayout.addLayout(self.graph_optn_layout, 1, 1, 1, 2)
+        
 
         # ---------------------GRLAYOUT
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Ignored)
@@ -242,7 +380,7 @@ class Window(object):
         self.hrlabel.setSizePolicy(sizePolicy)
         self.hrlabel.setMaximumHeight(50)
         self.grlayout.addWidget(self.hrlabel, 0, 0, 1, 1 )
-
+        
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -251,6 +389,16 @@ class Window(object):
         self.hrbox.setMaxLength(3)
         self.hrbox.setMaximumWidth(150)
         self.hrbox.setText("72")
+
+        def db_update():
+            
+            connection = sql.connect("vascularsim.db")
+            cursor = connection.cursor()
+            cursor.execute('UPDATE HPN SET HR = ' + self.hrbox.text() + ', PF = ' +  self.flowbox.text() + ' WHERE id = 1')
+            connection.commit()
+            connection.close()
+
+        self.hrbox.returnPressed.connect(db_update)
         self.grlayout.addWidget(self.hrbox, 1, 0, 1, 1)
 
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Ignored)
@@ -284,6 +432,7 @@ class Window(object):
 
         self.flowbox.setMaximumWidth(150)
         self.flowbox.setMaxLength(5)
+        self.flowbox.returnPressed.connect(db_update)
         self.grlayout.addWidget(self.flowbox, 5, 0, 1, 1)
 
         self.gridLayout_3 = QGridLayout()
@@ -306,40 +455,31 @@ class Window(object):
 
         self.grlayout.addLayout(self.gridLayout_3, 8, 0, 2, 1)
         self.pushButton_13 = QPushButton(self.centralwidget)
-        self.pushButton_13.setText('ok')
+        
         self.grlayout.addWidget(self.pushButton_13, 8, 1, 2, 1)
 
         self.grid_patient_profile = QGridLayout()
-        self.grid_patient_profile.setObjectName("grid_patient_profile")
-        
+                
         self.experimentlbl = QLabel(self.centralwidget)
-        self.experimentlbl.setObjectName("experimentlbl")
         self.grid_patient_profile.addWidget(self.experimentlbl, 2, 0, 1, 1)
         
         self.patprof = QLabel(self.centralwidget)
-        self.patprof.setObjectName("patprof")
         self.grid_patient_profile.addWidget(self.patprof, 0, 0, 1, 1)
         
         self.stenosis_lbl_top = QLabel(self.centralwidget)
-        self.stenosis_lbl_top.setObjectName("stenosis_lbl_top")
         self.grid_patient_profile.addWidget(self.stenosis_lbl_top, 1, 0, 1, 1)
         
         self.valpatprof = QLabel(self.centralwidget)
-        self.valpatprof.setObjectName("valpatprof")
         self.grid_patient_profile.addWidget(self.valpatprof, 0, 1, 1, 1)
 
         self.Valstenosis_lbl_top = QLabel(self.centralwidget)
-        self.Valstenosis_lbl_top.setObjectName("Valstenosis_lbl_top")
         self.grid_patient_profile.addWidget(self.Valstenosis_lbl_top, 1, 1, 1, 1)
         
         self.Valexperimentlbl = QLabel(self.centralwidget)
-        self.Valexperimentlbl.setObjectName("Valexperimentlbl")
         self.grid_patient_profile.addWidget(self.Valexperimentlbl, 2, 1, 1, 1)
         self.grlayout.addLayout(self.grid_patient_profile, 0, 1, 1, 1)
 
-        self.sbpbox.setText("120")
-        self.dbpbox.setText("80")
-        self.flowbox.setText("450.0")
+        
 
         self.mainlayout.addLayout(self.grlayout, 0,3,11,1)
         
@@ -427,7 +567,6 @@ class Window(object):
         self.menuGraph.addSeparator()
         self.menuAbout.addSeparator()
         self.menuAbout.addSeparator()
-
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSimulation.menuAction())
         self.menubar.addAction(self.menuGraph.menuAction())
@@ -456,6 +595,10 @@ class Window(object):
         self.dbplabel.setText("DBP              mmHg")
         self.flowlabel.setText("Flow            ml/sec")
 
+        self.sbpbox.setText("120")
+        self.dbpbox.setText("80")
+        self.flowbox.setText("450.0")
+
         self.patprof.setText("Patient Profile")
         self.stenosis_lbl_top.setText("stenosis")
         self.experimentlbl.setText("Experiment")
@@ -476,8 +619,10 @@ class Window(object):
         self.actionClear_graph.setText( "Clear")
         self.actionReset.setText( "Reset")
         self.actionGraph_options.setText( "Graph options")
+
         self.actionClear_all.setText( "Clear all")
         self.actionReset_all.setText( "Reset")
+
         self.actionGraph_1.setText( "Graph - 1")
         self.actionGraph_2.setText( "Graph - 2")
         self.actionGraph_3.setText( "Graph - 3")
@@ -486,12 +631,16 @@ class Window(object):
         self.actionGraph_6.setText( "Graph - 2")
         self.actionGraph_7.setText( "Graph - 3")
         self.actionGraph_8.setText( "Graph - 4")
+
+        self.pushButton_13.setText('ok')
+
         self.actionHelp.setText( "Help")
         self.actionUser_manual.setText( "User manual")
         self.actionAbout.setText( "About")
         self.actionDevelopers.setText( "Developers")
 
     def stylesheet(self):
+
         self.MainWindow.setStyleSheet(""" QMenuBar {  spacing: 4px;  } 
                                         QMainWindow{ background-color:rgb(30,30,30);   } """)
 
@@ -499,20 +648,32 @@ class Window(object):
 
         self.centralwidget.setStyleSheet(""" 
             QPushButton{  background-color: rgb(60,60,60); color: rgb(240,240,240);  font: bold 13px; }
-            QLabel { color: rgb(240,240,240); font: bold 13px; } 
+            QLabel { color: rgb(240,240,240); font: bold 13px; }
+            QRadioButton{ color: rgb(240,240,240);  font: bold 13px; }  
             """)
 
-        self.hrlabel.setStyleSheet("background-color: rgb(30,30,30); height: 10")
-        self.hrbox.setStyleSheet("background-color: rgb(30,30,30); border: 1px solid black; color: rgb(6, 247, 0); height: 90; font: 90px;")
+        self.btn.setStyleSheet("background-color: rgb(0,150,255)")
+        self.btn1.setStyleSheet("background-color: rgb(60,60,60)")
+        self.btn2.setStyleSheet("background-color: rgb(60,60,60)")
+        self.btn3.setStyleSheet("background-color: rgb(60,60,60)")
+        self.btn4.setStyleSheet("background-color: rgb(60,60,60)")
+        self.btn5.setStyleSheet("background-color: rgb(60,60,60)")
+        self.btn6.setStyleSheet("background-color: rgb(252,2,248)")
+        self.btn7.setStyleSheet("background-color: rgb(60,60,60)")
+        self.btn8.setStyleSheet("background-color: rgb(200,200,0)")
+        self.btn9.setStyleSheet("background-color: rgb(60,60,60)")
+
+        self.hrlabel.setStyleSheet("background-color: rgb(30,30,30); ")
+        self.hrbox.setStyleSheet("background-color: rgb(30,30,30); border: 0px solid white ; color: rgb(6, 247, 0); height: 50; font: 50px;")
         
         self.sbplabel.setStyleSheet("background-color: rgb(30,30,30); height: 10")
-        self.sbpbox.setStyleSheet("background-color: rgb(30,30,30); border: 1px solid black; color: rgb(252, 2, 248); height: 90; font: 90px;")
+        self.sbpbox.setStyleSheet("background-color: rgb(30,30,30); border: 0px ; color: rgb(252, 2, 248); height: 50; font: 50px;")
 
         self.dbplabel.setStyleSheet("background-color: rgb(30,30,30); height: 10")
-        self.dbpbox.setStyleSheet("background-color: rgb(30,30,30); border: 1px solid black; color: rgb(252, 2, 248); height: 90; font: 90px;")
+        self.dbpbox.setStyleSheet("background-color: rgb(30,30,30); border: 0px ; color: rgb(252, 2, 248); height: 50; font: 50px;")
 
         self.flowlabel.setStyleSheet("background-color: rgb(30,30,30); height: 10")
-        self.flowbox.setStyleSheet("background-color: rgb(30,30,30); border: 1px solid black; color: rgb(255, 255, 255); height: 90; font: 59px;")
+        self.flowbox.setStyleSheet("background-color: rgb(30,30,30); border: 0px ; color: rgb(255, 255, 255); height: 50; font: 49px;")
 
         self.patprof.setStyleSheet("background-color: rgb(30,30,30); height: 10; color: rgb(6, 247, 0);")
         self.valpatprof.setStyleSheet("image:url(C:/Users/arvin/Documents/GitHub/VascularSim/img/off.png);")
@@ -524,33 +685,35 @@ class Window(object):
         self.Valstenosis_lbl_top.setStyleSheet("image:url(C:/Users/arvin/Documents/GitHub/VascularSim/img/off.png);")
 
     def update(self):
-        global data1, data2, data3, data4, ptr1, index
+        global data1, data2, data3, data4, ptr1, index, graph_optn, cnt1
 
         def retrieve():
+            
             connection = sql.connect("vascularsim.db")
             cursor = connection.cursor()
-
-            cursor.execute('SELECT "twelve" FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 10 ) )
+            
+            
+            cursor.execute(' SELECT ' + graph_optn[0] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 2 ) )
             rows = cursor.fetchall()
-            ecg = [item for t in rows for item in t]
+            zero = [item for t in rows for item in t]
 
-            cursor.execute('SELECT "one" FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 10 ) )
+            cursor.execute(' SELECT ' + graph_optn[1] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 2 ) )
             rows = cursor.fetchall()
             one = [item for t in rows for item in t]
-
-            cursor.execute('SELECT "seven" FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 10 ) )
+            
+            cursor.execute(' SELECT ' + graph_optn[2] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 2 ) )
             rows = cursor.fetchall()
-            seven = [item for t in rows for item in t]
+            two = [item for t in rows for item in t]
 
-            cursor.execute('SELECT "nine" FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 10 ) )
+            cursor.execute(' SELECT ' + graph_optn[3] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 2 ) )
             rows = cursor.fetchall()
-            nine = [item for t in rows for item in t]
+            three = [item for t in rows for item in t]
 
             connection.close()
-            index[0] = index[0] + 10
-            
-            return one, ecg, seven, nine
-
+            index[0] = index[0] + 2
+        
+            return one, zero, two, three
+        
         connection = sql.connect("vascularsim.db")
         cursor = connection.cursor()
         cursor.execute("SELECT FLAG FROM HPN WHERE ID = 1")
@@ -558,63 +721,79 @@ class Window(object):
         connection.close()
 
         if rows[0] == 1:
-            
+            print("value : ",index)
+            if index[1] == 501:
+                index[0] = 501 #331 
+                index[1] = 251 #166 
+
             if ptr1 >= data1.shape[0]:
-                temp = data1[10:]
-                temp1 = data2[10:]
-                temp2 = data3[10:]
-                temp3 = data4[10:]
+                
+                temp = data1[2:]
+                temp1 = data2[2:]
+                temp2 = data3[2:]
+                temp3 = data4[2:]
 
                 val, val1, val2, val3 = retrieve()
+
                 data1 = np.append(temp, val)
                 data2 = np.append(temp1, val1)
                 data3 = np.append(temp2, val2)
                 data4 = np.append(temp3, val3)
 
-                self.curve1.setData(data2)
+                self.curve1.setData(data2)  
                 self.curve2.setData(data1)
                 self.curve3.setData(data3)
                 self.curve4.setData(data4)
-                ptr1 += 10
+
+                ptr1 += 2
                 index[1] += 1
-            
+
             else:
                 val, val1, val2, val3 = retrieve()
-                data1[ptr1 : index[1]*10] = val[0:10]
-                data2[ptr1 : index[1]*10] = val1[0:10]
-                data3[ptr1 : index[1]*10] = val2[0:10]
-                data4[ptr1 : index[1]*10] = val3[0:10]
 
-                self.curve1.setData(data2[: index[1]*10])
-                self.curve2.setData(data1[: index[1]*10])
-                self.curve3.setData(data3[: index[1]*10])
-                self.curve4.setData(data4[: index[1]*10])
+                data1[ptr1 : index[1]*2] = val[0:2]
+                data2[ptr1 : index[1]*2] = val1[0:2]
+                data3[ptr1 : index[1]*2] = val2[0:2]
+                data4[ptr1 : index[1]*2] = val3[0:2]
+
+                self.curve1.setData(data2[: index[1]*2])
+                self.curve2.setData(data1[: index[1]*2])
+                self.curve3.setData(data3[: index[1]*2])
+                self.curve4.setData(data4[: index[1]*2])
                 #self.curve1.setPos(-ptr1+3050, 0)
-                ptr1 += 10
+
+                ptr1 += 2
                 index[1] += 1
 
-    def arteryModel(self):
+    def run(self):
         try:
             path = os.path.join("Artery_Model", "main.exe")
             subprocess.Popen(path)
-        except e as Exception:
+        except Exception as e:
             print(str(e))
-
-    def plotMarker(self):
+        
         self.timer.timeout.connect(self.update)
         self.timer.start(40)
-
-    def run(self):
-        self.arteryModel()
-        self.plotMarker()
 
     def stop(self):
         self.timer.stop()
 
 if __name__ == "__main__":
-    import sys
     import os
+    import sys
+
+    def process_exists(process_name):
+        call = 'TASKLIST', '/FI', 'imagename eq %s' % process_name
+        output = subprocess.check_output(call).decode()
+        last_line = output.strip().split('\r\n')[-1]
+        return last_line.lower().startswith(process_name.lower())
+
+    def exit():
+        if process_exists('main.exe'):
+            os.system('taskkill /f /im main.exe')
+        
     app = QApplication(sys.argv)
+    app.aboutToQuit.connect(exit)
     wid = QMainWindow()
     ui = Window(wid)
     wid.show()
