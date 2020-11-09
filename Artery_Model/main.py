@@ -1,18 +1,19 @@
+from ecg import ecg_simulate_ecgsyn
 import numpy as np
 from scipy.integrate import solve_ivp
-import sys
+import scipy.signal as signal
 import sqlite3 as sql
-import math
+import time
+from collections import deque
 
-
-def pulsegen(t, x, R1, L, R2, C, clock, it):
+def pulsegen(t, x, clock, it):
     i1 = np.interp(t, clock, it)
     xdot = [[0.0], [0.0]]
-    xdot[0] = -R1 / L * x[0] + R1 * i1 / L
-    xdot[1] = -x[1] / (R2 * C) + i1 / C
+    xdot[0] = -10 * x[0] + 10 * i1
+    xdot[1] = -0.99 * x[1] + 1.0989 * i1
     return xdot
 
-def integrated_ode(t, x, Vin, clock):
+def system_simulator(t, x, Vin, clock):
 
     rlcnewval = np.genfromtxt('Artery_Model/Datas/rlcnewval.txt', delimiter=',')
     Rs = rlcnewval[:, 0]
@@ -319,243 +320,117 @@ def integrated_ode(t, x, Vin, clock):
 
     return xdot
 
-#ECG 
-def p_wav(x,a_pwav,d_pwav,t_pwav,li):
-    l=li
-    a=a_pwav
-    x=x+t_pwav
-    b=(2*l)/d_pwav
-    n=100
-    p1=1/l
-    p2=0
-    for i in range(1,n):
-        harm1=(((np.sin((math.pi/(2*b))*(b-(2*i))))/(b-(2*i))+(np.sin((math.pi/(2*b))*(b+(2*i))))/(b+(2*i)))*(2/math.pi))*np.cos((i*math.pi*x)/l)
-        p2=p2+harm1
+############################################################################################
+                                    #AVOLIO SIMULATION PARAMETERS
+############################################################################################
+# Set peak flow
+PF = 450
+# Set step size
+dt = 0.002
 
-    pwav1=p1+p2
-    pwav=a*pwav1
+# Array containing all the artery numbers
+artery_index = [1, 3, 7, 57, 117, 75, 123, 205, 217, 147, 225] 
+#{1-ascending aorta, 2-aortic arch, 3-subclavian, 4-carotid
+#5-thoracic, 6-cereberal, 7-abdominal, 8-brachial, 9-ulnar, 10-Femoral, 11-Radial}
 
-    return [pwav]
+# Initial value for pulse generator
+pulse_init = np.zeros(2)
+# Initial value for Avolio model
+system_init = np.zeros(256)
 
-def qrs_wav(x,a_qrswav,d_qrswav,li):
-    l=li
-    a=a_qrswav
-    b=(2*l)/d_qrswav
-    n=100
-    qrs1=(a/(2*b))*(2-b)
-    qrs2=0
+# Loop parameters
+n = 100
+i = 0
+ind = [0,0]
+heart_rate_check = deque([0, 0], maxlen=2)
 
-    for i in range(1,n):
-        harm=(((2*b*a)/(i*i*math.pi*math.pi))*(1-np.cos((i*math.pi)/b)))*np.cos((i*math.pi*x)/l)
-        qrs2=qrs2+harm
+while i < n:
 
-    qrswav=qrs1+qrs2
+    if i == 0:
+        dt_flag = 0
+    
+    # FETCH HR VALUE FROM DATABASE
+    connection = sql.connect("vascularsim.db")
+    cursor = connection.cursor()
+    cursor.execute("SELECT HR FROM HPN WHERE ID = 1")
+    rows = cursor.fetchone()
+    HR = rows[0]
+    
+    # UPDATE DT_FLAG
+    cursor.execute('UPDATE HPN SET N = ? WHERE id = ?', (dt_flag, 1) )
+    
+    # APPEND HEART RATE FOR CHECKING
+    heart_rate_check.append(HR)
 
-    return [qrswav]
+    # GET NEW ECG VALUE IF HEART RATE IS NOT SAME
+    if heart_rate_check[0] != heart_rate_check[1]:
+        ecg_index = 40
+        ecg = ecg_simulate_ecgsyn( sfecg=1/dt, N=60 , Anoise=0, hrmean = HR, hrstd=1, lfhfratio=0.5, sfint=1/dt, ti=(-70, -15, 0, 15, 100), ai=(1.2, -5, 30, -7.5, 0.75), bi=(0.25, 0.1, 0.1, 0.1, 0.4) )
+        for hr_val_update in range(1, 10000):
+            ind[0] = ind[0] + 1
+            if ecg_index == 10000:
+                ecg_index = 1
+            cursor.execute('UPDATE BUFFER SET "twelve" = ? WHERE id = ?', (ecg[ecg_index], ind[0]) )
+            ecg_index += 1
+    connection.commit()
+    connection.close()
+    
+    # Time axis for each iteration
+    clock = np.arange(i, i+1, dt)
+    # Function to be given for interpolation (fp)
+    it = np.multiply((1 - np.floor((np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) + 0.7)), (PF * (np.square(np.sin(3.14 * (np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) / 0.3)))))
+    
+    # Pulse generator output which is to be given as input to the Avolio model
+    pulse_output = (solve_ivp(pulsegen, [i, i+1], pulse_init, args=(clock, it), method='Radau', t_eval=clock)).y
+    # Update the initial value to be given to the solver as the last value of the previous iteration
+    pulse_init = [pulse_output[0,-1], pulse_output[1,-1]]
+    # Convert 2d output to 1-d
+    pu = it.transpose()
+    # This is the output (1D) to be given to the system
+    pulse = (pu - pulse_output[0, :]) * 0.11 + pulse_output[1, :]
+    
+    # Solving the Avolio model using Radau method
+    simulation_output = (solve_ivp(system_simulator, [i, i+1], system_init,
+    args=(pulse, clock), method='Radau', t_eval=clock, first_step = 0.01, rtol = 1e-1, atol = 1e-1)).y
+    # Update the initial value to be given to the solver as the last value of the previous iteration
+    system_init = simulation_output[:,-1] 
+    
+    # UPDATE THE PRESSURE/FLOW VALUE FOR EACH ITERATIONS
+    connection = sql.connect("vascularsim.db")
+    cursor = connection.cursor()    
+    for j in range( len(simulation_output[0])):
+        ind[1] = ind[1] + 1
+        cursor.execute('UPDATE BUFFER SET "one" = ?, "two" = ?, "three" = ?, "four" = ?, "five" = ?, "six" = ?, "seven" = ?, "eight" = ?, "nine" = ?, "ten" = ?, "eleven" = ? WHERE id = ?', (simulation_output[1,j], simulation_output[3,j], simulation_output[7,j], simulation_output[57,j], simulation_output[117,j], simulation_output[75,j], simulation_output[123,j], simulation_output[205,j], simulation_output[217,j], simulation_output[147,j], simulation_output[225,j], ind[1] ) )
+    connection.commit()
+    connection.close()
+    
+    # UPDATE FLAG FOR PLOTTING
+    if i == 1:
+        connection = sql.connect("vascularsim.db")
+        cursor = connection.cursor()
+        cursor.execute('UPDATE HPN SET FLAG = 1 WHERE id = 1')
+        connection.commit()
+        connection.close()
+    
+    if ind[1] == 10000:
+        ind[1] = 0
 
-def q_wav(x,a_qwav,d_qwav,t_qwav,li):
-    l=li
-    x=x+t_qwav
-    a=a_qwav
-    b=(2*l)/d_qwav
-    n=100
-    q1=(a/(2*b))*(2-b)
-    q2=0
-    for i in range(1,n):
-        harm5=(((2*b*a)/(i*i*math.pi*math.pi))*(1-np.cos((i*math.pi)/b)))*np.cos((i*math.pi*x)/l)
-        q2=q2+harm5
+    dt_flag = 1
 
-    qwav=-1*(q1+q2)
+    if i == 0:
+        ecg_first = ecg[:500]
+        dt_arteries = [[],[],[],[],[],[],[],[],[],[],[]]
+        dt_ecg = signal.find_peaks( ecg_first )[0]
+        import matplotlib.pyplot as plt 
+        plt.plot(ecg_first)
+        plt.show()
+        plt.plot(simulation_output[1, :])
+        plt.show()
+        for dt_i in range(11):
+            dt_arteries[dt_i] = signal.find_peaks( simulation_output[artery_index[dt_i],:], height=60 )[0][0]
+        print(dt_ecg)
+    
+    i = i + 1
 
-    return [qwav]
 
-def s_wav(x,a_swav,d_swav,t_swav,li):
-    l=li
-    x=x-t_swav
-    a=a_swav
-    b=(2*l)/d_swav
-    n=100
-    s1=(a/(2*b))*(2-b)
-    s2=0
-    for i in range(1,n):
-        harm3=(((2*b*a)/(i*i*math.pi*math.pi))*(1-np.cos((i*math.pi)/b)))*np.cos((i*math.pi*x)/l)
-        s2=s2+harm3
 
-    swav=-1*(s1+s2)
-
-    return [swav]
-
-def t_wav(x,a_twav,d_twav,t_twav,li):
-    l=li
-    a=a_twav
-    x=x-t_twav-0.045
-    b=(2*l)/d_twav
-    n=100
-    t1=1/l
-    t2=0
-    for i in range(1,n):
-        harm2=(((np.sin((math.pi/(2*b))*(b-(2*i))))/(b-(2*i))+(np.sin((math.pi/(2*b))*(b+(2*i))))/(b+(2*i)))*(2/math.pi))*np.cos((i*math.pi*x)/l)
-        t2=t2+harm2
-
-    twav1=t1+t2
-    twav=a*twav1
-
-    return [twav]
-
-def u_wav(x,a_uwav,d_uwav,t_uwav,li):
-    l=li
-    a=a_uwav
-    x=x-t_uwav
-    b=(2*l)/d_uwav
-    n=100
-    u1=1/l
-    u2=0
-    for i in range(1,n):
-        harm4=(((np.sin((math.pi/(2*b))*(b-(2*i))))/(b-(2*i))+(np.sin((math.pi/(2*b))*(b+(2*i))))/(b+(2*i)))*(2/math.pi))*np.cos((i*math.pi*x)/l)
-        u2=u2+harm4
-
-    uwav1=u1+u2
-    uwav=a*uwav1
-
-    return [uwav]
-
-def main():
-    try:
-        stecg = 0.16
-        etecg = 1.16
-        ecg = []
-        
-        PF = 450
-        n = 100
-
-        path = 'Artery_Model/Datas/RLCtru.txt'
-        rlctru = np.genfromtxt(path, delimiter=',')
-        Rs = rlctru[:, 0]
-        L = rlctru[:, 1]
-        C = rlctru[:, 2]
-        Rp = rlctru[:, 3]
-
-        dt = 0.002
-
-        # All dynamic values
-        pgen = np.zeros(shape=(2,1))
-        sgen = np.zeros(256)
-
-        i = 0
-        st = 0
-
-        et = 1
-        ind = 0
-
-        ecgClock = np.arange(stecg, etecg, 0.002)
- 
-        while i < n:
-            #srt = time.time()
-
-            connection = sql.connect("vascularsim.db")
-            cursor = connection.cursor()
-            cursor.execute("SELECT HR FROM HPN WHERE ID = 1")
-            rows = cursor.fetchone()
-            HR = rows[0]
-            connection.close()
-
-            #############################################################
-
-            li = 30 / HR
-            a_pwav, d_pwav = 0.25, 0.09
-            t_pwav = 0.16
-            a_qwav = 0.025
-            d_qwav = 0.066
-            t_qwav = 0.166
-            a_qrswav = 1.6
-            d_qrswav = 0.11
-            a_swav = 0.25
-            d_swav = 0.066
-            t_swav = 0.09
-            a_twav = 0.35
-            d_twav = 0.142
-            t_twav = 0.2
-            a_uwav = 0.035
-            d_uwav = 0.0476/ 40
-            t_uwav = 0.433 / 100
-            pwav = p_wav(ecgClock, a_pwav, d_pwav, t_pwav, li)
-            qwav = q_wav(ecgClock, a_qwav, d_qwav, t_qwav, li)
-            qrswav = qrs_wav(ecgClock, a_qrswav, d_qrswav, li)
-            swav = s_wav(ecgClock, a_swav, d_swav, t_swav, li)
-            twav = t_wav(ecgClock, a_twav, d_twav, t_twav, li)
-            uwav = u_wav(ecgClock, a_uwav, d_uwav, t_uwav, li)
-            temp = np.add(pwav, qrswav)
-            temp = np.add(temp, twav)
-            temp = np.add(temp, swav)
-            temp = np.add(temp, qwav)
-            ecg = np.add(temp, uwav)
-            stecg = stecg + 1
-            etecg = etecg + 1
-
-            #############################################################
-
-            T = 60 / HR
-            clock = np.arange(0, et, dt)
-            t1 = clock / T
-            t2 = t1 - np.floor(t1)
-            t3 = np.multiply(T, t2)
-            x1 = PF * (np.square(np.sin(3.14 * t3 / 0.3)))
-            x2 = np.floor(t3 + 0.7)
-
-            R1 = 0.11
-            R2 = 1.11
-            L = 0.011
-            C = 0.91
-            
-            it = np.multiply((1 - x2), x1)
-            pulse_generator = lambda t, x: pulsegen(t, x, R1, L, R2, C, clock, it)
-            output_pulse = solve_ivp(pulse_generator, [st, et], [pgen[0, -1], pgen[1, -1]], method='Radau', t_eval=np.arange(st,et,dt))
-            x = output_pulse.y
-
-            if i == 0:
-                pgen = np.delete(pgen, 0, 1)
-            pgen = np.append(pgen, x, axis=1)
-            pu = it.transpose()
-            pulse = (pu - pgen[0, :]) * R1 + pgen[1, :]
-            system_finder = lambda t, x: integrated_ode(t, x, pulse, clock)
-
-            if i == 0:
-                sol = solve_ivp(system_finder, [st, et], sgen, method='Radau', t_eval=np.arange(st,et,dt))
-                xo = sol.y
-            else:
-                sol = solve_ivp(system_finder, [st, et], sgen[:, -1], method='Radau', t_eval=np.arange(st,et,dt))
-                xo = sol.y
-            
-            if i == 0:
-                sgen = xo
-            else:
-                sgen = np.append(sgen, xo, axis=1)
-            connection = sql.connect("vascularsim.db")
-            cursor = connection.cursor()
-            
-            for j in range(len(xo[0])):
-                ind = ind + 1
-                cursor.execute('UPDATE BUFFER SET "one" = ?, "two" = ?, "three" = ?, "four" = ?, "five" = ?, "six" = ?, "seven" = ?, "eight" = ?, "nine" = ?, "ten" = ?, "eleven" = ?, "twelve" = ? WHERE id = ?', (xo[1,j], xo[3,j], xo[7,j], xo[57,j], xo[117,j], xo[75,j], xo[123,j], xo[205,j], xo[217,j], xo[147,j], xo[225,j], ecg[0, j], ind) )
-            connection.commit()
-            connection.close()
-            
-            if i == 2:
-                connection = sql.connect("vascularsim.db")
-                cursor = connection.cursor()
-                cursor.execute('UPDATE HPN SET FLAG = 1 WHERE id = 1')
-                connection.commit()
-                connection.close()
-            
-            if ind == 10000:
-                ind = 0
-            st = st+1
-            et = et+1
-            i = i+1
-
-            #end = time.time()
-            #print(end - srt)
-
-    except Exception as e:
-        print(str(e))    
-
-main()

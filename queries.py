@@ -12,7 +12,7 @@ def query():
         #cursor.execute('INSERT INTO BUFFER("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen") VALUES(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)')
         cursor.execute('UPDATE BUFFER SET "zero" = ?, "one" = ?,"two" = ?, "three" = ?, "four" = ?, "five" = ?, "six" = ?, "seven" = ?, "eight" = ?, "nine" = ?, "ten" = ?, "eleven" = ?, "twelve" = ?, "thirteen" = ?, "fourteen" = ? WHERE id = ?', (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, i+1) )
     
-    cursor.execute('UPDATE HPN   SET PF = 450, HR = 72, FLAG = 0 WHERE id = 1')
+    cursor.execute('UPDATE HPN   SET PF = 450, HR = 60, FLAG = 0, N = 0 WHERE id = 1')
     conn.commit()
     conn.close()
 
