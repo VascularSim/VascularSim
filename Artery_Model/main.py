@@ -323,31 +323,31 @@ def system_simulator(t, x, Vin, clock):
 ############################################################################################
                                     #AVOLIO SIMULATION PARAMETERS
 ############################################################################################
+
 # Set peak flow
 PF = 450
+
 # Set step size
 dt = 0.002
 
 # Array containing all the artery numbers
-artery_index = [1, 3, 7, 57, 117, 75, 123, 205, 217, 147, 225] 
+artery_index = [1, 3, 7, 57, 117, 75, 123, 205, 217, 147, 225]
 #{1-ascending aorta, 2-aortic arch, 3-subclavian, 4-carotid
 #5-thoracic, 6-cereberal, 7-abdominal, 8-brachial, 9-ulnar, 10-Femoral, 11-Radial}
 
 # Initial value for pulse generator
 pulse_init = np.zeros(2)
+
 # Initial value for Avolio model
 system_init = np.zeros(256)
 
 # Loop parameters
 n = 100
 i = 0
-ind = [0,0]
+ind = [0, 0]
 heart_rate_check = deque([0, 0], maxlen=2)
 
 while i < n:
-
-    if i == 0:
-        dt_flag = 0
     
     # FETCH HR VALUE FROM DATABASE
     connection = sql.connect("vascularsim.db")
@@ -365,10 +365,12 @@ while i < n:
     # GET NEW ECG VALUE IF HEART RATE IS NOT SAME
     if heart_rate_check[0] != heart_rate_check[1]:
         ecg_index = 40
-        ecg = ecg_simulate_ecgsyn( sfecg=1/dt, N=60 , Anoise=0, hrmean = HR, hrstd=1, lfhfratio=0.5, sfint=1/dt, ti=(-70, -15, 0, 15, 100), ai=(1.2, -5, 30, -7.5, 0.75), bi=(0.25, 0.1, 0.1, 0.1, 0.4) )
-        for hr_val_update in range(1, 10000):
+        duration = 10
+        approx_number_of_beats = int(np.round(duration * (heart_rate / 60)))
+        ecg = ecg_simulate_ecgsyn( sfecg=1/dt, N=approx_number_of_beats , Anoise=0, hrmean = HR, hrstd=1, lfhfratio=0.5, sfint=1/dt, ti=(-70, -15, 0, 15, 100), ai=(1.2, -5, 30, -7.5, 0.75), bi=(0.25, 0.1, 0.1, 0.1, 0.4) )
+        for hr_val_update in range(1, 8000):
             ind[0] = ind[0] + 1
-            if ecg_index == 10000:
+            if ecg_index == 8000:
                 ecg_index = 1
             cursor.execute('UPDATE BUFFER SET "twelve" = ? WHERE id = ?', (ecg[ecg_index], ind[0]) )
             ecg_index += 1
@@ -378,20 +380,17 @@ while i < n:
     # Time axis for each iteration
     clock = np.arange(i, i+1, dt)
     # Function to be given for interpolation (fp)
-    it = np.multiply((1 - np.floor((np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) + 0.7)), (PF * (np.square(np.sin(3.14 * (np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) / 0.3)))))
-    
+    it = np.multiply((1 - np.floor((np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) + 0.7)), (PF * (np.square(np.sin(3.14 * (np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) / 0.3)))))    
     # Pulse generator output which is to be given as input to the Avolio model
     pulse_output = (solve_ivp(pulsegen, [i, i+1], pulse_init, args=(clock, it), method='Radau', t_eval=clock)).y
     # Update the initial value to be given to the solver as the last value of the previous iteration
-    pulse_init = [pulse_output[0,-1], pulse_output[1,-1]]
+    pulse_init = [pulse_output[0,-1], pulse_output[1,-1]]    
     # Convert 2d output to 1-d
     pu = it.transpose()
     # This is the output (1D) to be given to the system
     pulse = (pu - pulse_output[0, :]) * 0.11 + pulse_output[1, :]
-    
     # Solving the Avolio model using Radau method
-    simulation_output = (solve_ivp(system_simulator, [i, i+1], system_init,
-    args=(pulse, clock), method='Radau', t_eval=clock, first_step = 0.01, rtol = 1e-1, atol = 1e-1)).y
+    simulation_output = (solve_ivp(system_simulator, [i, i+1], system_init, args=(pulse, clock), method='Radau', t_eval=clock, first_step = 0.01, rtol = 1e-1, atol = 1e-1)).y
     # Update the initial value to be given to the solver as the last value of the previous iteration
     system_init = simulation_output[:,-1] 
     
@@ -412,25 +411,7 @@ while i < n:
         connection.commit()
         connection.close()
     
-    if ind[1] == 10000:
+    if ind[1] == 8000:
         ind[1] = 0
-
-    dt_flag = 1
-
-    if i == 0:
-        ecg_first = ecg[:500]
-        dt_arteries = [[],[],[],[],[],[],[],[],[],[],[]]
-        dt_ecg = signal.find_peaks( ecg_first )[0]
-        import matplotlib.pyplot as plt 
-        plt.plot(ecg_first)
-        plt.show()
-        plt.plot(simulation_output[1, :])
-        plt.show()
-        for dt_i in range(11):
-            dt_arteries[dt_i] = signal.find_peaks( simulation_output[artery_index[dt_i],:], height=60 )[0][0]
-        print(dt_ecg)
     
     i = i + 1
-
-
-

@@ -172,10 +172,24 @@ def ecg_simulate_ecgsyn( sfecg=256, N=256, Anoise=0, hrmean=60, hrstd=1, lfhfrat
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    heart_rate= 60
-    sampling_rate= 500
-    # Run appropriate method
-    approx_number_of_beats = 60
-    ecg = ecg_simulate_ecgsyn( sfecg=500, N=approx_number_of_beats, Anoise=0, hrmean=heart_rate, hrstd=1, lfhfratio=0.5, sfint=500, ti=(-70, -15, 0, 15, 100), ai=(1.2, -5, 30, -7.5, 0.75), bi=(0.25, 0.1, 0.1, 0.1, 0.4) )
-    plt.plot(ecg)
-    plt.show()
+
+    sampling_rate= 5
+
+    length = 10
+    duration = None
+
+    if length is None:
+        length = duration * sampling_rate
+    if duration is None:
+        duration = length / sampling_rate
+
+    n = [60, 160]
+
+    for i in n:
+        heart_rate = i
+        # Run appropriate method
+        approx_number_of_beats = int(np.round(duration * (heart_rate / 60)))
+        ecg = ecg_simulate_ecgsyn( sfecg=500, N=approx_number_of_beats, Anoise=0, hrmean=heart_rate, hrstd=1, lfhfratio=0.5, sfint=500, ti=(-70, -15, 0, 15, 100), ai=(1.2, -5, 30, -7.5, 0.75), bi=(0.25, 0.1, 0.1, 0.1, 0.4) )
+        #print(len(ecg))
+        plt.plot(ecg)
+        plt.show()

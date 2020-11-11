@@ -344,17 +344,16 @@ class Window(object):
         self.curve3 = self.p3.plot()
         self.curve3.setPen('#fc02f8')  ## Pink pen
 
-        
-
         plotwin.nextRow()
         self.p4 = plotwin.addPlot()
         set_Graph_optn(self.p4)
         self.curve4 = self.p4.plot()
         self.curve4.setPen('y')  ## Yellow pen
+        
         self.p1.hideAxis('bottom')
         self.p3.hideAxis('bottom')
         self.p4.hideAxis('bottom')
-
+        
         self.mainlayout.addWidget(plotwin, 2, 1, 10, 2)  
 
         def radiobtnval(type):
@@ -444,7 +443,7 @@ class Window(object):
         self.flowlabel.setMaximumHeight(30)
         self.flowlabel.setMaximumWidth(150)
         self.grlayout.addWidget(self.flowlabel, 4, 0, 1, 1)
-
+        
         self.flowbox.setMaximumWidth(150)
         self.flowbox.setMaxLength(5)
         self.flowbox.returnPressed.connect(HR_update)
@@ -453,24 +452,60 @@ class Window(object):
         self.gridLayout_3 = QGridLayout()
         self.gridLayout_3.setSizeConstraint(QLayout.SetDefaultConstraint)
 
-        #self.label_5 = QLabel(self.centralwidget)
-        #self.grlayout.addWidget(self.label_5, 6, 0, 1, 1)
+        dummy = QLabel(self.centralwidget)
+        self.gridLayout_3.addWidget(dummy, 0, 0, 1, 1)
 
-        self.label_7 = QLabel(self.centralwidget)
-        self.gridLayout_3.addWidget(self.label_7, 1, 0, 1, 1)
+        dt_layout = QGridLayout()
+        dt_hlayout = QVBoxLayout()
+        
+        self.dt_label =QLabel(self.centralwidget)
+        self.dt_label.setText("Pre-Ejection Period")
+        self.dt_label_1 =QLabel(self.centralwidget)
+        self.dt_label_1.setText("DT_1")
+        self.dt_label_2 =QLabel(self.centralwidget)
+        self.dt_label_2.setText("DT_2")
+        self.dt_label_3 =QLabel(self.centralwidget)
+        self.dt_label_3.setText("DT_3")
 
-        self.label_6 =QLabel(self.centralwidget)
-        self.gridLayout_3.addWidget(self.label_6, 0, 0, 1, 1)
+        dt_layout.addWidget(self.dt_label, 0, 0)
+        dt_layout.addLayout(dt_hlayout, 1, 0)
+        dt_hlayout.addWidget(self.dt_label_1)
+        dt_hlayout.addWidget(self.dt_label_2)
+        dt_hlayout.addWidget(self.dt_label_3)
 
-        #self.label_8 = QLabel(self.centralwidget) 
-        #self.gridLayout_3.addWidget(self.label_8, 0, 1, 1, 1)
+        
+        self.gridLayout_3.addLayout(dt_layout, 1, 0, 1, 1)
 
-        #self.label_9 = QLabel(self.centralwidget)
-        #self.gridLayout_3.addWidget(self.label_9, 1, 1, 1, 1)
+        pwv_layout = QGridLayout()
+        pwv_hlayout = QVBoxLayout()
 
-        self.grlayout.addLayout(self.gridLayout_3, 8, 0, 2, 1)
-        self.pushButton_13 = QPushButton(self.centralwidget)
-        self.grlayout.addWidget(self.pushButton_13, 8, 1, 2, 1)
+        self.pwv_label = QLabel(self.centralwidget)
+        self.pwv_label.setText("Pulse Wave Velocity")
+        self.pwv_label_1 = QLabel(self.centralwidget)
+        self.pwv_label_1.setText("PWV_1")
+        self.pwv_label_2 = QLabel(self.centralwidget)
+        self.pwv_label_2.setText("PWV_2")
+        self.pwv_label_3 = QLabel(self.centralwidget)
+        self.pwv_label_3.setText("PWV_3")
+
+        pwv_layout.addWidget(self.pwv_label, 0, 0)
+        pwv_layout.addLayout(pwv_hlayout, 1, 0)
+        pwv_hlayout.addWidget(self.pwv_label_1)
+        pwv_hlayout.addWidget(self.pwv_label_2)
+        pwv_hlayout.addWidget(self.pwv_label_3)
+        
+        self.gridLayout_3.addLayout(pwv_layout, 1, 1, 1, 1)
+
+        self.label_8 = QLabel(self.centralwidget)
+        self.gridLayout_3.addWidget(self.label_8, 2, 0, 1, 1)
+
+        self.label_9 = QLabel(self.centralwidget)
+        self.gridLayout_3.addWidget(self.label_9, 3, 0, 1, 1)
+
+        self.label_10 = QLabel(self.centralwidget)
+        self.gridLayout_3.addWidget(self.label_10, 4, 0, 1, 1)
+
+        self.grlayout.addLayout(self.gridLayout_3, 6, 0, 1, 2)
         
         self.grid_patient_profile = QGridLayout()
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
@@ -659,7 +694,6 @@ class Window(object):
         self.actionGraph_7.setText( "Graph - 3")
         self.actionGraph_8.setText( "Graph - 4")
 
-        self.pushButton_13.setText('ok')
 
         self.actionHelp.setText( "Help")
         self.actionUser_manual.setText( "User manual")
@@ -678,6 +712,14 @@ class Window(object):
             QLabel { color: rgb(240,240,240); font: bold 13px; }
             QRadioButton{ color: rgb(240,240,240);  font: bold 13px; }  
             """)
+
+        self.dt_label_1.setStyleSheet("color: rgb(0,150,255)")
+        self.dt_label_2.setStyleSheet("color: rgb(252,2,248)")
+        self.dt_label_3.setStyleSheet("color: rgb(200,200,0)")
+
+        self.pwv_label_1.setStyleSheet("color: rgb(0,150,255)")
+        self.pwv_label_2.setStyleSheet("color: rgb(252,2,248)")
+        self.pwv_label_3.setStyleSheet("color: rgb(200,200,0)")
 
         self.btn.setStyleSheet("background-color: rgb(0,150,255)")
         self.btn1.setStyleSheet("background-color: rgb(60,60,60)")
@@ -756,6 +798,10 @@ class Window(object):
                 index[1] = 1
 
             if ptr1 >= data1.shape[0]:
+                self.p1.enableAutoRange()
+                self.p2.enableAutoRange()
+                self.p3.enableAutoRange()
+                self.p4.enableAutoRange()
                 temp = data1[5:]
                 temp1 = data2[5:]
                 temp2 = data3[5:]
