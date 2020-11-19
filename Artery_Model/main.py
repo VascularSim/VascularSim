@@ -330,13 +330,25 @@ PF = 450
 # Set step size
 dt = 0.002
 
+# Array to store 1st iteration values to calculate dt
+system_dt = np.empty(11)
+# Array to store all the peak values to calculate dt
+peak_arteries_index = np.empty(11)
+
 # Array containing all the artery numbers
-artery_index = [1, 3, 7, 57, 117, 75, 123, 205, 217, 147, 225]
+artery_index = [1, 3, 7, 57, 117, 75, 123, 205, 217, 147, 225] 
+# Array containing the distance of all the arteries from aortic arch in cm
+artery_distance = [3, 0, 10.2, 17.8, 14.3, 38.6, 24.9, 21.9, 42, 57.8, 39.1]
 #{1-ascending aorta, 2-aortic arch, 3-subclavian, 4-carotid
 #5-thoracic, 6-cereberal, 7-abdominal, 8-brachial, 9-ulnar, 10-Femoral, 11-Radial}
 
 # Initial value for pulse generator
 pulse_init = np.zeros(2)
+
+# Array to store 1st iteration values to calculate dt
+system_pwv = np.empty(11)
+# Array to store all the peak values to calculate dt
+pwv_arteries_index = np.empty(11)
 
 # Initial value for Avolio model
 system_init = np.zeros(256)
@@ -356,9 +368,6 @@ while i < n:
     rows = cursor.fetchone()
     HR = rows[0]
     
-    # UPDATE DT_FLAG
-    cursor.execute('UPDATE HPN SET N = ? WHERE id = ?', (dt_flag, 1) )
-    
     # APPEND HEART RATE FOR CHECKING
     heart_rate_check.append(HR)
 
@@ -366,7 +375,7 @@ while i < n:
     if heart_rate_check[0] != heart_rate_check[1]:
         ecg_index = 40
         duration = 10
-        approx_number_of_beats = int(np.round(duration * (heart_rate / 60)))
+        approx_number_of_beats = int(np.round(duration * (HR / 60)))
         ecg = ecg_simulate_ecgsyn( sfecg=1/dt, N=approx_number_of_beats , Anoise=0, hrmean = HR, hrstd=1, lfhfratio=0.5, sfint=1/dt, ti=(-70, -15, 0, 15, 100), ai=(1.2, -5, 30, -7.5, 0.75), bi=(0.25, 0.1, 0.1, 0.1, 0.4) )
         for hr_val_update in range(1, 8000):
             ind[0] = ind[0] + 1
@@ -403,15 +412,36 @@ while i < n:
     connection.commit()
     connection.close()
     
-    # UPDATE FLAG FOR PLOTTING
-    if i == 1:
-        connection = sql.connect("vascularsim.db")
-        cursor = connection.cursor()
-        cursor.execute('UPDATE HPN SET FLAG = 1 WHERE id = 1')
-        connection.commit()
-        connection.close()
-    
     if ind[1] == 8000:
         ind[1] = 0
+
+    # Store the first iteration value for calculating dt
+    if i == 1:
+        # Calculate the dt by identifying the qrs wave
+        peak_ecg_index = np.where(ecg[40:540] == np.amax(ecg[40:540]))[0][0]
+        # Identify the second peak of Avolio model
+        for j in range(11):
+            peak_arteries_index[j] = np.add(np.where(simulation_output[artery_index[j],:] == np.amin(simulation_output[artery_index[j],:]))[0][0], (500*i))
+            #Calculate dt
+            system_dt[j] = np.multiply((peak_arteries_index[j] - peak_ecg_index),4)
+        connection = sql.connect("vascularsim.db")
+        cursor = connection.cursor()
+        cursor.execute('UPDATE HPN SET FLAG = 1, PEP_1 = ?,  PEP_2 = ?, PEP_3 = ?, PEP_4 = ?, PEP_5 = ?, PEP_6 = ?, PEP_7 = ?, PEP_8 = ?, PEP_9 = ?, PEP_10 = ?, PEP_11 = ? WHERE id = 1', (system_dt[0], system_dt[1], system_dt[2], system_dt[3], system_dt[4], system_dt[5], system_dt[6], system_dt[7], system_dt[8], system_dt[9], system_dt[10] ) )
+        connection.commit()
+        connection.close()
+       
+    
+    if i == 0:
+        for k in range(11):
+            pwv_arteries_index[k] = np.multiply(np.where(simulation_output[artery_index[k],:] > 0.9)[0][0], 2)
+            system_pwv[k] = (artery_distance[k] / pwv_arteries_index[k]) * 1000
+            system_pwv = np.round(system_pwv, 2)
+    
+        # UPDATE FLAG FOR PLOTTING AND PEP VALUE
+        connection = sql.connect("vascularsim.db")
+        cursor = connection.cursor()
+        cursor.execute('UPDATE HPN SET PWV_1 = ?,  PWV_2 = ?, PWV_3 = ?, PWV_4 = ?, PWV_5 = ?, PWV_6 = ?, PWV_7 = ?, PWV_8 = ?, PWV_9 = ?, PWV_10 = ?, PWV_11 = ? WHERE id = 1', (system_pwv[0], system_pwv[1], system_pwv[2], system_pwv[3], system_pwv[4], system_pwv[5], system_pwv[6], system_pwv[7], system_pwv[8], system_pwv[9], system_pwv[10] ) )
+        connection.commit()
+        connection.close()
     
     i = i + 1

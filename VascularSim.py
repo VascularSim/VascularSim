@@ -86,7 +86,7 @@ class Window(object):
     def setupUi(self):
         
         self.btn_list = [ self.btn, self.btn1, self.btn2, self.btn3, self.btn4, self.btn5, self.btn6, self.btn7, self.btn8, self.btn9 ] 
-
+        # MAINWINDOW 
         self.MainWindow.setObjectName("MainWindow")
         self.MainWindow.setWindowTitle("VascularSim")
         self.MainWindow.setWindowIcon(QIcon('./VascularSim.ico'))
@@ -94,7 +94,7 @@ class Window(object):
         self.MainWindow.setMaximumHeight(650)
         self.MainWindow.setMaximumWidth(1200)
         
-        #CENTRAL WIDGET
+        # CENTRAL WIDGET
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
@@ -105,52 +105,147 @@ class Window(object):
         # LEFT SIDE BUTTONS
         def gup(btn_name):
             global graph_optn
-            
+            conn = sql.connect("vascularsim.db")
+            cursor = conn.cursor()
+
             if rd_btn_val == 1:
                 for i in self.btn_list:
                     if i.styleSheet().split(" ")[1] == "rgb(0,150,255)":
                         i.setStyleSheet("background-color: rgb(60,60,60)")
                                        
-                
                 if btn_name == 0:
                     self.btn.setStyleSheet("background-color: rgb(0,150,255)"   )
                     graph_optn[1] = "one"
+
+                    cursor.execute("SELECT PEP_1 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]                    
+                    self.dt_label_1.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_1 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
+                    print('changed')
 
                 elif btn_name == 1:
                     self.btn1.setStyleSheet("background-color: rgb(0,150,255)"   )
                     graph_optn[1] = "two"
 
+                    cursor.execute("SELECT PEP_2 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_1.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_2 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
+
                 elif btn_name == 2:
                     self.btn2.setStyleSheet("background-color: rgb(0,150,255)"   )
                     graph_optn[1] = "three"
+                    cursor.execute("SELECT PEP_3 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_1.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_3 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 3:
                     self.btn3.setStyleSheet("background-color: rgb(0,150,255)"   )
                     graph_optn[1] = "four"
+                    cursor.execute("SELECT PEP_4 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_1.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_4 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 4:
                     self.btn4.setStyleSheet("background-color: rgb(0,150,255)"   )
                     graph_optn[1] = "five"
+                    cursor.execute("SELECT PEP_5 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_1.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_5 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 5:
                     self.btn5.setStyleSheet("background-color: rgb(0,150,255)"   )
                     graph_optn[1] = "six"
 
+                    cursor.execute("SELECT PEP_6 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_1.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_6 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
+
                 elif btn_name == 6:
                     self.btn6.setStyleSheet("background-color: rgb(0,150,255)"   )
                     graph_optn[1] = "seven"
+                    cursor.execute("SELECT PEP_7 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_1.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_7 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 7:
                     self.btn7.setStyleSheet("background-color: rgb(0,150,255)"   )
                     graph_optn[1] = "eight"
+                    cursor.execute("SELECT PEP_8 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_1.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_8 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 8:
                     self.btn8.setStyleSheet("background-color: rgb(0,150,255)"   )
                     graph_optn[1] = "nine"
+                    cursor.execute("SELECT PEP_9 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_1.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_9 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 9:
                     self.btn9.setStyleSheet("background-color: rgb(0,150,255)"   )
                     graph_optn[1] = "ten"
+                    cursor.execute("SELECT PEP_10 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_1.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_10 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
 
             elif rd_btn_val == 2:
                 
@@ -162,41 +257,133 @@ class Window(object):
                     self.btn.setStyleSheet("background-color: rgb(252,2,248)"   )
                     graph_optn[rd_btn_val] = "one"
 
+                    cursor.execute("SELECT PEP_1 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_2.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_1 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
+
                 elif btn_name == 1:
                     self.btn1.setStyleSheet("background-color: rgb(252,2,248)"   )
                     graph_optn[rd_btn_val] = "two"
 
+                    cursor.execute("SELECT PEP_2 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_2.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_2 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
+
                 elif btn_name == 2:
                     self.btn2.setStyleSheet("background-color: rgb(252,2,248)"   )
                     graph_optn[rd_btn_val] = "three"
+                    cursor.execute("SELECT PEP_3 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_2.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_3 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
                 
                 elif btn_name == 3:
                     self.btn3.setStyleSheet("background-color: rgb(252,2,248)"   )
                     graph_optn[rd_btn_val] = "four"
+                    cursor.execute("SELECT PEP_4 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_2.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_4 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 4:
                     self.btn4.setStyleSheet("background-color: rgb(252,2,248)"   )
                     graph_optn[rd_btn_val] = "five"
+                    cursor.execute("SELECT PEP_5 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_2.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_5 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 5:
                     self.btn5.setStyleSheet("background-color: rgb(252,2,248)"   )
                     graph_optn[rd_btn_val] = "six"
+                    cursor.execute("SELECT PEP_6 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_2.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_6 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 6:
                     self.btn6.setStyleSheet("background-color: rgb(252,2,248)"   )
                     graph_optn[rd_btn_val] = "seven"
+                    cursor.execute("SELECT PEP_7 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_2.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_7 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 7:
                     self.btn7.setStyleSheet("background-color: rgb(252,2,248)"   )
                     graph_optn[rd_btn_val] = "eight"
+                    cursor.execute("SELECT PEP_8 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_2.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_8 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 8:
                     self.btn8.setStyleSheet("background-color: rgb(252,2,248)"   )
                     graph_optn[rd_btn_val] = "nine"
+                    cursor.execute("SELECT PEP_9 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_2.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_9 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 9:
                     self.btn9.setStyleSheet("background-color: rgb(252,2,248)"   )
                     graph_optn[rd_btn_val] = "ten"
+                    cursor.execute("SELECT PEP_10 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_2.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_10 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
 
             elif rd_btn_val == 3:
 
@@ -208,41 +395,130 @@ class Window(object):
                     self.btn.setStyleSheet("background-color: rgb(200,200,0)" )
                     graph_optn[rd_btn_val] = "one"
 
+                    cursor.execute("SELECT PEP_1 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_3.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_1 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
+
                 elif btn_name == 1:
                     self.btn1.setStyleSheet("background-color: rgb(200,200,0)" )
                     graph_optn[rd_btn_val] = "two"
+                    cursor.execute("SELECT PEP_2 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_3.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_2 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 2:
                     self.btn2.setStyleSheet("background-color: rgb(200,200,0)" )
                     graph_optn[rd_btn_val] = "three"
+                    cursor.execute("SELECT PEP_3 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_3.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_3 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 3:
                     self.btn3.setStyleSheet("background-color: rgb(200,200,0)" )
                     graph_optn[rd_btn_val] = "four"
+                    cursor.execute("SELECT PEP_4 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_3.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_4 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 4:
                     self.btn4.setStyleSheet("background-color: rgb(200,200,0)" )
                     graph_optn[rd_btn_val] = "five"
+                    cursor.execute("SELECT PEP_5 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_3.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_4 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 5:
                     self.btn5.setStyleSheet("background-color: rgb(200,200,0)" )
                     graph_optn[rd_btn_val] = "six"
+                    cursor.execute("SELECT PEP_6 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_3.setText(str(pep))
+
+                    cursor.execute("SELECT PWV_6 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 6:
                     self.btn6.setStyleSheet("background-color: rgb(200,200,0)" )
                     graph_optn[rd_btn_val] = "seven"
+                    cursor.execute("SELECT PEP_7 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_3.setText(str(pep))
+                    cursor.execute("SELECT PWV_7 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 7:
                     self.btn7.setStyleSheet("background-color: rgb(200,200,0)" )
                     graph_optn[rd_btn_val] = "eight"
+                    cursor.execute("SELECT PEP_8 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_3.setText(str(pep))
+                    cursor.execute("SELECT PWV_8 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 8:
                     self.btn8.setStyleSheet("background-color: rgb(200,200,0)" )
                     graph_optn[rd_btn_val] = "nine"
+                    cursor.execute("SELECT PEP_9 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_3.setText(str(pep))
+                    cursor.execute("SELECT PWV_9 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 9:
                     self.btn9.setStyleSheet("background-color: rgb(200,200,0)" )
                     graph_optn[rd_btn_val] = "ten"
+                    cursor.execute("SELECT PEP_10 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pep = rows[0]
+                    self.dt_label_3.setText(str(pep))
+                    cursor.execute("SELECT PWV_10 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
+
+            conn.close()
 
         def sizepolicy(obj):
             sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
@@ -313,48 +589,57 @@ class Window(object):
         self.mainlayout.addWidget(self.stopbtn, 0,2,1,1)
 
         # ______________________________GRAPH_WIDGET_____________________________
-        # ============GRAPH
+        
         def set_Graph_optn(obj):
             obj.setLabel('bottom', text='(ms)')
             obj.setDownsampling(mode='peak')
             obj.setClipToView(True)
             obj.getAxis('bottom').setScale(2)
             obj.getAxis('bottom').setTickSpacing(1000, 10)
-            obj.showGrid(x=True, y=True, alpha=0.3)
+            #obj.showGrid(x=True, y=True, alpha=0.3)
             obj.setRange(xRange=[0, 3000])
+            obj.hideAxis('left')
         
         pg.setConfigOptions(antialias= True, background=QColor(30,30,30,255))
         plotwin = pg.GraphicsLayoutWidget(show=True)
         plotwin.setContentsMargins(0, 0, 0, 0)
 
+        # FIRST PLOT
         self.p1 = plotwin.addPlot()
+       
         set_Graph_optn(self.p1)
         self.curve1 = self.p1.plot()
         self.curve1.setPen('g')  ## Green pen
 
+        # SECOND PLOT
         plotwin.nextRow()
         self.p2 = plotwin.addPlot()
         set_Graph_optn(self.p2)
         self.curve2 = self.p2.plot()
         self.curve2.setPen('#0096ff')  ## Blue pen
 
+
+        # THIRD PLOT
         plotwin.nextRow()
         self.p3 = plotwin.addPlot()
+        
         set_Graph_optn(self.p3)
         self.curve3 = self.p3.plot()
         self.curve3.setPen('#fc02f8')  ## Pink pen
 
+        # FOURTH PLOT
         plotwin.nextRow()
         self.p4 = plotwin.addPlot()
+        
         set_Graph_optn(self.p4)
         self.curve4 = self.p4.plot()
         self.curve4.setPen('y')  ## Yellow pen
-        
+
         self.p1.hideAxis('bottom')
         self.p3.hideAxis('bottom')
         self.p4.hideAxis('bottom')
         
-        self.mainlayout.addWidget(plotwin, 2, 1, 10, 2)  
+        self.mainlayout.addWidget(plotwin, 2, 1, 10, 2)
 
         def radiobtnval(type):
             global rd_btn_val
@@ -461,11 +746,11 @@ class Window(object):
         self.dt_label =QLabel(self.centralwidget)
         self.dt_label.setText("Pre-Ejection Period")
         self.dt_label_1 =QLabel(self.centralwidget)
-        self.dt_label_1.setText("DT_1")
+        self.dt_label_1.setText("0")
         self.dt_label_2 =QLabel(self.centralwidget)
-        self.dt_label_2.setText("DT_2")
+        self.dt_label_2.setText("0")
         self.dt_label_3 =QLabel(self.centralwidget)
-        self.dt_label_3.setText("DT_3")
+        self.dt_label_3.setText("0")
 
         dt_layout.addWidget(self.dt_label, 0, 0)
         dt_layout.addLayout(dt_hlayout, 1, 0)
@@ -473,7 +758,6 @@ class Window(object):
         dt_hlayout.addWidget(self.dt_label_2)
         dt_hlayout.addWidget(self.dt_label_3)
 
-        
         self.gridLayout_3.addLayout(dt_layout, 1, 0, 1, 1)
 
         pwv_layout = QGridLayout()
@@ -482,11 +766,11 @@ class Window(object):
         self.pwv_label = QLabel(self.centralwidget)
         self.pwv_label.setText("Pulse Wave Velocity")
         self.pwv_label_1 = QLabel(self.centralwidget)
-        self.pwv_label_1.setText("PWV_1")
+        self.pwv_label_1.setText("0")
         self.pwv_label_2 = QLabel(self.centralwidget)
-        self.pwv_label_2.setText("PWV_2")
+        self.pwv_label_2.setText("0")
         self.pwv_label_3 = QLabel(self.centralwidget)
-        self.pwv_label_3.setText("PWV_3")
+        self.pwv_label_3.setText("0")
 
         pwv_layout.addWidget(self.pwv_label, 0, 0)
         pwv_layout.addLayout(pwv_hlayout, 1, 0)
@@ -542,6 +826,7 @@ class Window(object):
         self.mainlayout.addLayout(self.grlayout, 0,3,11,1)
         
         # ______________________________MENUBAR _____________________________
+        
         # ============MENU BAR
         self.MainWindow.setMenuBar(self.menubar)
 
@@ -555,6 +840,7 @@ class Window(object):
         self.menuFile.addAction(self.actionCreate_profile)
         self.menuFile.addAction(self.actionSettings)
         self.menuFile.addAction(self.actionQuit)
+
         # ============MENU SIMULATION
         self.menuSimulation = QMenu(self.menubar)      
         
@@ -570,7 +856,7 @@ class Window(object):
         self.menuSimulation.addAction(self.actionHuman_arterial_tree)
         self.menuSimulation.addAction(self.actionFoetal_Circulation)
         self.menuSimulation.addAction(self.menuMedical_Experiments.menuAction())
-
+        
         # ============MENU GRAPH
         self.menuGraph = QMenu(self.menubar)
 
@@ -755,8 +1041,6 @@ class Window(object):
 
     def update(self):
         global data1, data2, data3, data4, ptr1, index, graph_optn
-
-         
         
         def retrieve():
             connection = sql.connect("vascularsim.db")
@@ -787,13 +1071,11 @@ class Window(object):
         cursor = connection.cursor()
         cursor.execute("SELECT FLAG FROM HPN WHERE ID = 1")
         flag = cursor.fetchone()
-        cursor.execute("SELECT N FROM HPN WHERE ID = 1")
-        dt_flag = cursor.fetchone()
         connection.close()
         
         if flag[0] == 1:
             
-            if index[1] == 2000:
+            if index[1] == 1600:
                 index[0] = 1
                 index[1] = 1
 
@@ -802,6 +1084,7 @@ class Window(object):
                 self.p2.enableAutoRange()
                 self.p3.enableAutoRange()
                 self.p4.enableAutoRange()
+
                 temp = data1[5:]
                 temp1 = data2[5:]
                 temp2 = data3[5:]
@@ -819,41 +1102,96 @@ class Window(object):
 
                 self.curve1.setData(data2)
                 self.curve2.setData(x = self.xdata, y = data1)
-                self.curve3.setData(data3)
+                self.curve3.setData(x = self.xdata, y = data3)
                 self.curve4.setData(x = self.xdata, y = data4)
 
                 ptr1 += 5
                 index[1] += 1
+                
+                if index[0] == 1:
+                    connection = sql.connect("vascularsim.db")
+                    cursor = connection.cursor()
+                    cursor.execute("SELECT PEP_1 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    self.dt_label_1.setText(str(rows[0]))
+
+                    cursor.execute("SELECT PWV_1 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
+                    
+                    cursor.execute("SELECT PEP_7 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    self.dt_label_2.setText(str(rows[0]))
+
+                    cursor.execute("SELECT PWV_7 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
+
+                    cursor.execute("SELECT PEP_9 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    self.dt_label_3.setText(str(rows[0]))
+                    
+                    cursor.execute("SELECT PWV_9 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
+                    connection.close()
 
             else:
-                val, val1, val2, val3 = retrieve()
+               
+                if index[0] == 1:
+                    connection = sql.connect("vascularsim.db")
+                    cursor = connection.cursor()
+                    cursor.execute("SELECT PEP_1 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    self.dt_label_1.setText(str(rows[0]))
 
+                    cursor.execute("SELECT PWV_1 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_1.setText(str(pwv))
+
+                    cursor.execute("SELECT PEP_7 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    self.dt_label_2.setText(str(rows[0]))
+
+                    cursor.execute("SELECT PWV_7 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_2.setText(str(pwv))
+
+                    cursor.execute("SELECT PEP_9 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    self.dt_label_3.setText(str(rows[0]))
+                    
+                    cursor.execute("SELECT PWV_9 FROM HPN WHERE ID = 1")
+                    rows = cursor.fetchone()
+                    pwv = rows[0]
+                    self.pwv_label_3.setText(str(pwv))
+                    connection.close()
+
+                val, val1, val2, val3 = retrieve()
+                
                 data1[ptr1 : index[1]*5] = val[0:5]
                 data2[ptr1 : index[1]*5] = val1[0:5]
                 data3[ptr1 : index[1]*5] = val2[0:5]
                 data4[ptr1 : index[1]*5] = val3[0:5]
+
                 try :
                     self.curve1.setData(data2[: index[1]*5])
                     self.curve2.setData(x = list(itertools.islice(self.xdata, 0, int(index[1]*5) )) , y = data1[: index[1]*5])
                     self.curve3.setData(data3[: index[1]*5])
                     self.curve4.setData(x = list(itertools.islice(self.xdata, 0, int(index[1]*5) )) , y = data4[: index[1]*5])
-                #self.curve1.setPos(-ptr1+3050, 0)
+                    #self.curve1.setPos(-ptr1+3050, 0)
+
                 except Exception as e:
                     self.alert(str(e))
+                
                 ptr1 += 5
                 index[1] += 1
-
-        if dt_flag[0] == 0:
-            print('Happy')
-            connection = sql.connect("vascularsim.db")
-            cursor = connection.cursor()
-            cursor.execute(' SELECT ' + graph_optn[0] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 5 ) )
-            rows = cursor.fetchall()
-            zero = [item for t in rows for item in t]
-            connection.close()
-        else:
-            print('sad')
-
+                
     def process_exists(self, process_name):
             call = 'TASKLIST', '/FI', 'imagename eq %s' % process_name
             output = subprocess.check_output(call).decode()
@@ -864,14 +1202,17 @@ class Window(object):
         global speed
 
         try:
+
             if self.process_exists('main.exe'):
                 self.timer.start(speed)
                 self.alert(" SIMULATING...    ")
+            
             else:
                 subprocess.Popen("./main/main.exe",shell=False,close_fds=False)
                 self.timer.timeout.connect(self.update)
                 self.timer.start(speed)
                 self.alert(" SIMULATING...    ")
+    
         except Exception as e:
             print(str(e))
 
@@ -886,6 +1227,9 @@ class Window(object):
         alert.setText(msg)
         alert.exec_()
 
+
+
+
 if __name__ == "__main__":
     import os
     import sys
@@ -899,9 +1243,10 @@ if __name__ == "__main__":
     def exit():
         if process_exists('main.exe'):
             os.system('taskkill /f /im main.exe')
-    
+
     app = QApplication(sys.argv)
     app.aboutToQuit.connect(exit)
+    
     wid = QMainWindow()
     ui = Window(wid)
     wid.show()
