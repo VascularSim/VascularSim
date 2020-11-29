@@ -6,6 +6,7 @@ import sqlite3 as sql
 import time
 from collections import deque
 
+
 def pulsegen(t, x, clock, it):
     i1 = np.interp(t, clock, it)
     xdot = [[0.0], [0.0]]
@@ -14,12 +15,11 @@ def pulsegen(t, x, clock, it):
     return xdot
 
 def system_simulator(t, x, Vin, clock):
-
-    rlcnewval = np.genfromtxt('Artery_Model/Datas/rlcnewval.txt', delimiter=',')
-    Rs = rlcnewval[:, 0]
-    L = rlcnewval[:, 1]
-    C = rlcnewval[:, 2]
-    Rp = rlcnewval[:, 3]
+    RLC = np.genfromtxt('Artery_Model/Data/STENOSIS_RLC.txt', delimiter=',')
+    Rs = RLC[:, 0]
+    L = RLC[:, 1]
+    C = RLC[:, 2]
+    Rp = RLC[:, 3]
     Vin = np.interp(t, clock, Vin)
     xdot = np.zeros(256, dtype=np.float64)
 
@@ -320,6 +320,8 @@ def system_simulator(t, x, Vin, clock):
 
     return xdot
 
+
+
 ############################################################################################
                                     #AVOLIO SIMULATION PARAMETERS
 ############################################################################################
@@ -332,21 +334,23 @@ dt = 0.002
 
 # Array to store 1st iteration values to calculate dt
 system_dt = np.empty(11)
+
 # Array to store all the peak values to calculate dt
 peak_arteries_index = np.empty(11)
 
 # Array containing all the artery numbers
 artery_index = [1, 3, 7, 57, 117, 75, 123, 205, 217, 147, 225] 
+
 # Array containing the distance of all the arteries from aortic arch in cm
-artery_distance = [3, 0, 10.2, 17.8, 14.3, 38.6, 24.9, 21.9, 42, 57.8, 39.1]
-#{1-ascending aorta, 2-aortic arch, 3-subclavian, 4-carotid
-#5-thoracic, 6-cereberal, 7-abdominal, 8-brachial, 9-ulnar, 10-Femoral, 11-Radial}
+artery_distance = [3, 0, 10.2, 17.8, 14.3, 38.6, 24.9, 21.9, 42, 57.8, 39.1]        # {1-ascending aorta, 2-aortic arch, 3-subclavian, 4-carotid 5-thoracic, 
+                                                                                    # 6-cereberal, 7-abdominal, 8-brachial, 9-ulnar, 10-Femoral, 11-Radial}
 
 # Initial value for pulse generator
 pulse_init = np.zeros(2)
 
 # Array to store 1st iteration values to calculate dt
 system_pwv = np.empty(11)
+
 # Array to store all the peak values to calculate dt
 pwv_arteries_index = np.empty(11)
 
@@ -357,6 +361,8 @@ system_init = np.zeros(256)
 n = 100
 i = 0
 ind = [0, 0]
+
+# FOR CHECKNG PREV VALUE & NXT VALUE IS SAME 
 heart_rate_check = deque([0, 0], maxlen=2)
 
 while i < n:

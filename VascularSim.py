@@ -13,6 +13,9 @@ from PyQt5.QtWidgets import *
 
 import queries
 
+from Artery_Model.Stenosis import stenosis
+
+
 speed = 20
 data1 = np.empty(2000)
 data2 = np.empty(2000)
@@ -529,7 +532,7 @@ class Window(object):
             obj.setMaximumSize(QSize(207, 1677))
 
         sizepolicy(self.btn)
-        self.btn.clicked.connect( partial(gup, 0) ) 
+        self.btn.clicked.connect( partial(gup, 0) )
         self.mainlayout.addWidget(self.btn, 2, 0, 1, 1)
         
         sizepolicy(self.btn1)
@@ -537,11 +540,11 @@ class Window(object):
         self.mainlayout.addWidget(self.btn1, 3, 0, 1, 1)
 
         sizepolicy(self.btn2)
-        self.btn2.clicked.connect( partial(gup, 2) ) 
+        self.btn2.clicked.connect( partial(gup, 2) )
         self.mainlayout.addWidget(self.btn2, 4, 0, 1, 1)
 
         sizepolicy(self.btn3)
-        self.btn3.clicked.connect( partial(gup, 3) ) 
+        self.btn3.clicked.connect( partial(gup, 3) )
         self.mainlayout.addWidget(self.btn3, 5, 0, 1, 1)
 
         sizepolicy(self.btn4)
@@ -609,14 +612,14 @@ class Window(object):
        
         set_Graph_optn(self.p1)
         self.curve1 = self.p1.plot()
-        self.curve1.setPen('g')  ## Green pen
+        self.curve1.setPen('g')  # Green pen
 
         # SECOND PLOT
         plotwin.nextRow()
         self.p2 = plotwin.addPlot()
         set_Graph_optn(self.p2)
         self.curve2 = self.p2.plot()
-        self.curve2.setPen('#0096ff')  ## Blue pen
+        self.curve2.setPen('#0096ff')  # Blue pen
 
 
         # THIRD PLOT
@@ -625,7 +628,7 @@ class Window(object):
         
         set_Graph_optn(self.p3)
         self.curve3 = self.p3.plot()
-        self.curve3.setPen('#fc02f8')  ## Pink pen
+        self.curve3.setPen('#fc02f8')  # Pink pen
 
         # FOURTH PLOT
         plotwin.nextRow()
@@ -633,7 +636,7 @@ class Window(object):
         
         set_Graph_optn(self.p4)
         self.curve4 = self.p4.plot()
-        self.curve4.setPen('y')  ## Yellow pen
+        self.curve4.setPen('y')  # Yellow pen
 
         self.p1.hideAxis('bottom')
         self.p3.hideAxis('bottom')
@@ -645,10 +648,13 @@ class Window(object):
             global rd_btn_val
             if type == "r1":
                 rd_btn_val = 0
+            
             elif type == "r2":
                 rd_btn_val = 1
+            
             elif type == "r3":
                 rd_btn_val = 2
+            
             else:
                 rd_btn_val = 3
         
@@ -671,7 +677,7 @@ class Window(object):
         self.mainlayout.addLayout(self.graph_optn_layout, 1, 1, 1, 2)
         
 
-        # ---------------------GRLAYOUT
+        # ________________________________GRLAYOUT_______________________________________
         inner_glayout = QGridLayout()
         self.grlayout.addLayout(inner_glayout, 1, 0, 1, 1)
 
@@ -808,7 +814,7 @@ class Window(object):
         
         self.valpatprof = QLabel(self.centralwidget)
         self.grid_patient_profile.addWidget(self.valpatprof, 1, 1, 1, 1)
-
+        
         self.Valstenosis_lbl_top = QLabel(self.centralwidget)
         self.grid_patient_profile.addWidget(self.Valstenosis_lbl_top, 2, 1, 1, 1)
         
@@ -824,7 +830,158 @@ class Window(object):
         self.Valexperimentlbl.setSizePolicy(sizePolicy)
 
         self.mainlayout.addLayout(self.grlayout, 0,3,11,1)
+
+        #_________________________PARAMETER LAYOUT__________________________________
+        self.parameter_layout = QGridLayout()
+        self.feedback_layout = QGridLayout()
+        self.feedback_layout_2 = QGridLayout()      
         
+        main_label = QLabel()
+        main_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        #main_label.setStyleSheet("background-color:white;")
+        #main_label.setText("STENOSIS")
+        gif = QMovie("1.gif")
+        gif.setCacheMode(QMovie.CacheAll) 
+        gif.setSpeed(100)
+        main_label.setMovie(gif)
+        gif.start()
+
+        self.parameters_tab_widget = QTabWidget()
+        self.parameters_tab_widget.setStyleSheet("background-color:black;")
+
+        # STENOSIS TAB
+        self.stenosis_tab = QWidget()
+        self.stenosis_tab_layout = QGridLayout() 
+        l1 = QLabel() 
+        l2 = QLabel()
+        l3 = QLabel()
+        l4 = QLabel()
+        l5 = QLabel()
+        l6 = QLabel()
+        l7 = QLabel()
+        l8 = QLabel()
+        l9 = QLabel()
+        l10 = QLabel()
+        l11 = QLabel()
+
+        edit1 = QLineEdit()
+        edit2 = QLineEdit()
+        edit3 = QLineEdit()
+        edit4 = QLineEdit()
+        edit5 = QLineEdit()
+        edit6 = QLineEdit()
+        edit7 = QLineEdit()
+        edit8 = QLineEdit()
+        edit9 = QLineEdit()
+        edit10 = QLineEdit()
+        edit11 = QLineEdit() 
+
+        l1.setText("This is the first tab") 
+        l1.setStyleSheet("color:white;")
+        l2.setText("This is the first tab") 
+        l2.setStyleSheet("color:white;")
+        l3.setText("This is the first tab") 
+        l3.setStyleSheet("color:white;")
+        l4.setText("This is the first tab") 
+        l4.setStyleSheet("color:white;")
+        l5.setText("This is the first tab") 
+        l5.setStyleSheet("color:white;")
+        l6.setText("This is the first tab") 
+        l6.setStyleSheet("color:white;")
+        l7.setText("This is the first tab") 
+        l7.setStyleSheet("color:white;")
+        l8.setText("This is the first tab") 
+        l8.setStyleSheet("color:white;")
+        l9.setText("This is the first tab") 
+        l9.setStyleSheet("color:white;")
+        l10.setText("This is the first tab") 
+        l10.setStyleSheet("color:white;")
+        l11.setText("This is the first tab") 
+        l11.setStyleSheet("color:white;")
+
+        self.stenosis_tab_layout.addWidget(l1, 0, 0)
+        self.stenosis_tab_layout.addWidget(l2, 1, 0)
+        self.stenosis_tab_layout.addWidget(l3, 2, 0)
+        self.stenosis_tab_layout.addWidget(l4, 3, 0)
+        self.stenosis_tab_layout.addWidget(l5, 4, 0)
+        self.stenosis_tab_layout.addWidget(l6, 5, 0)
+        self.stenosis_tab_layout.addWidget(l7, 6, 0)
+        self.stenosis_tab_layout.addWidget(l8, 7, 0)
+        self.stenosis_tab_layout.addWidget(l9, 8, 0)
+        self.stenosis_tab_layout.addWidget(l10, 9, 0)
+        self.stenosis_tab_layout.addWidget(l11, 10, 0) 
+
+        self.stenosis_tab_layout.addWidget(edit1, 0, 1)
+        self.stenosis_tab_layout.addWidget(edit2, 1, 1)
+        self.stenosis_tab_layout.addWidget(edit3, 2, 1)
+        self.stenosis_tab_layout.addWidget(edit4, 3, 1)
+        self.stenosis_tab_layout.addWidget(edit5, 4, 1)
+        self.stenosis_tab_layout.addWidget(edit6, 5, 1)
+        self.stenosis_tab_layout.addWidget(edit7, 6, 1)
+        self.stenosis_tab_layout.addWidget(edit8, 7, 1)
+        self.stenosis_tab_layout.addWidget(edit9, 8, 1)
+        self.stenosis_tab_layout.addWidget(edit10, 9, 1)
+        self.stenosis_tab_layout.addWidget(edit11, 10, 1)
+
+
+        self.stenosis_tab.setLayout(self.stenosis_tab_layout)
+
+        self.parameters_tab_2 = QWidget()
+        self.parameters_tab_widget.addTab(self.stenosis_tab, "STENOSIS")
+        self.parameters_tab_widget.addTab(self.parameters_tab_2, "TEST-2")
+
+        
+
+        # FEEDBACK LAYOUT 
+        feedback_label_1 = QLabel()
+        feedback_label_1.setText("feedback_1")
+        feedback_label_2 = QLabel()
+        feedback_label_2.setText("feedback_2")
+        feedback_label_3 = QLabel()
+        feedback_label_3.setText("feedback_3")
+        feedback_label_4 = QLabel()
+        feedback_label_4.setText("feedback_4")
+        feedback_label_5 = QLabel()
+        feedback_label_5.setText("feedback_5")
+        feedback_label_6 = QLabel()
+        feedback_label_6.setText("feedback_6")
+        
+        self.feedback_layout.addWidget(feedback_label_1, 0, 0)
+        self.feedback_layout.addWidget(feedback_label_2, 1, 0)
+        self.feedback_layout.addWidget(feedback_label_3, 2, 0)
+        self.feedback_layout_2.addWidget(feedback_label_4, 0, 0)
+        self.feedback_layout_2.addWidget(feedback_label_5, 1, 0)
+        self.feedback_layout_2.addWidget(feedback_label_6, 2, 0)
+        
+        # ADD WIDGETS TO PARAMETERS LAYOUT
+        self.parameter_layout.addWidget(main_label, 0, 0, 1, 1)
+        self.parameter_layout.addWidget(self.parameters_tab_widget, 1, 0, 1, 2 )
+        self.parameter_layout.addLayout(self.feedback_layout, 2, 0, 1, 1)
+        self.parameter_layout.addLayout(self.feedback_layout_2, 2, 1, 1, 1)
+
+        # EFFECT OF POSTURE WIDGET
+        self.parameters_tab_widget.setVisible(False)
+
+        self.effect_of_posture = QWidget()
+        self.eof_layout = QGridLayout()
+        self.effect_of_posture.setLayout(self.eof_layout)
+
+        eof_label = QLabel()
+        eof_label.setMinimumSize(QSize(200, 200))
+        
+
+        self.eof_layout.addWidget(eof_label, 0, 0)
+       
+        self.parameter_layout.addWidget(self.effect_of_posture, 1, 0, 1, 2 )
+        
+
+
+
+        # ADD PARAMETERS WIDGET TO MAIN LAYOUT
+        self.mainlayout.addLayout(self.parameter_layout, 0,4,12,1)
+        
+
+                
         # ______________________________MENUBAR _____________________________
         
         # ============MENU BAR
@@ -838,24 +995,34 @@ class Window(object):
         self.actionQuit = QAction(self.MainWindow)
 
         self.menuFile.addAction(self.actionCreate_profile)
+        self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionSettings)
+        self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
 
         # ============MENU SIMULATION
+        def swap_tab():
+            print("clicked")
         self.menuSimulation = QMenu(self.menubar)      
         
         self.menuMedical_Experiments = QMenu(self.menuSimulation)
         self.actionEffect_of_POSTURE = QAction(self.MainWindow)
         self.actionEffect_of_muscular_exercise = QAction(self.MainWindow)
+
         self.menuMedical_Experiments.addAction(self.actionEffect_of_POSTURE)
         self.menuMedical_Experiments.addAction(self.actionEffect_of_muscular_exercise)
 
+        
         self.actionHuman_arterial_tree = QAction(self.MainWindow)
         self.actionFoetal_Circulation = QAction(self.MainWindow)
 
         self.menuSimulation.addAction(self.actionHuman_arterial_tree)
+        self.menuSimulation.addSeparator()
         self.menuSimulation.addAction(self.actionFoetal_Circulation)
+        self.menuSimulation.addSeparator()
         self.menuSimulation.addAction(self.menuMedical_Experiments.menuAction())
+
+        self.actionEffect_of_POSTURE.triggered.connect(swap_tab)#.clicked.connect(swap_tab)
         
         # ============MENU GRAPH
         self.menuGraph = QMenu(self.menubar)
@@ -902,14 +1069,6 @@ class Window(object):
         self.menuAbout.addAction(self.actionAbout)
         self.menuAbout.addAction(self.actionDevelopers)
 
-        self.menuFile.addSeparator()
-        self.menuFile.addSeparator()
-        self.menuSimulation.addSeparator()
-        self.menuSimulation.addSeparator()
-        self.menuGraph.addSeparator()
-        self.menuGraph.addSeparator()
-        self.menuAbout.addSeparator()
-        self.menuAbout.addSeparator()
 
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSimulation.menuAction())
@@ -1191,7 +1350,7 @@ class Window(object):
                 
                 ptr1 += 5
                 index[1] += 1
-                
+
     def process_exists(self, process_name):
             call = 'TASKLIST', '/FI', 'imagename eq %s' % process_name
             output = subprocess.check_output(call).decode()
@@ -1226,7 +1385,6 @@ class Window(object):
         alert.setStyleSheet("background-color: rgb(60, 60, 60);\n" "color: rgb(240, 240, 240);\n")
         alert.setText(msg)
         alert.exec_()
-
 
 
 
