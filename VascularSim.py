@@ -837,10 +837,10 @@ class Window(object):
         self.parameter_layout = QGridLayout()
 
         
-        main_label = QLabel()
-        main_label.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        main_label.setStyleSheet("color:white;")
-        main_label.setText("STENOSIS")
+        self.main_label = QLabel()
+        self.main_label.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        self.main_label.setStyleSheet("color:white;")
+        self.main_label.setText("STENOSIS")
 
         self.parameters_tab_widget = QTabWidget()
         self.parameters_tab_widget.setStyleSheet("background-color: rgb(30,30,30);")
@@ -980,7 +980,7 @@ class Window(object):
         self.parameters_tab_widget.addTab(self.parameters_tab_2, "TEST-2")     
         
         # ADD WIDGETS TO PARAMETERS LAYOUT
-        self.parameter_layout.addWidget(main_label, 0, 0, 1, 1)
+        self.parameter_layout.addWidget(self.main_label, 0, 0, 1, 1)
         self.parameter_layout.addWidget(self.parameters_tab_widget, 1, 0, 1, 2 )
         
         # EFFECT OF POSTURE WIDGET
@@ -1010,10 +1010,12 @@ class Window(object):
         self.effect_of_posture.setVisible(False)
 
         def tilt_off():
+            self.main_label.setVisible(False)
             eof_label.setStyleSheet("image:url(./Resources/2.jpg);")
             
             
         def tilt_on():
+            self.main_label.setVisible(False)
             eof_label.setStyleSheet("image:url(./Resources/3.png);")
             
 
@@ -1047,6 +1049,7 @@ class Window(object):
         # ============MENU SIMULATION
         
         def swap_tab():
+            self.main_label.setVisible(False)
             self.parameters_tab_widget.setVisible(False)
             self.effect_of_posture.setVisible(True)
 
