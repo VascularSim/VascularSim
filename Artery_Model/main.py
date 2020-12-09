@@ -15,8 +15,9 @@ def pulsegen(t, x, clock, it):
     return xdot
 
 def system_simulator(t, x, Vin, clock):
-
-    RLC = np.genfromtxt('Artery_Model/Data/STENOSIS_RLC.txt', delimiter=',')
+    if stenosis_flag == 0:
+        RLC = np.genfromtxt('Artery_Model/Data/ARTERY_RLC.txt', delimiter=',')
+    else: RLC = np.genfromtxt('Artery_Model/Data/STENOSIS_RLC.txt', delimiter=',')
     Rs = RLC[:, 0]
     L = RLC[:, 1]
     C = RLC[:, 2]
@@ -359,21 +360,24 @@ pwv_arteries_index = np.empty(11)
 system_init = np.zeros(256)
 
 # Loop parameters
-n = 100
+n = 10
 i = 0
 ind = [0, 0]
 
 # FOR CHECKNG PREV VALUE & NXT VALUE IS SAME 
 heart_rate_check = deque([0, 0], maxlen=2)
 
-while i < n:
-    
+#Stenosis FLAG
+stenosis_flag = None
+
+while i < n:    
     # FETCH HR VALUE FROM DATABASE
     connection = sql.connect("vascularsim.db")
     cursor = connection.cursor()
-    cursor.execute("SELECT HR FROM HPN WHERE ID = 1")
+    cursor.execute("SELECT HR, STENOSIS_FLAG FROM HPN WHERE ID = 1")
     rows = cursor.fetchone()
     HR = rows[0]
+    stenosis_flag = rows[1]
     
     # APPEND HEART RATE FOR CHECKING
     heart_rate_check.append(HR)
@@ -421,7 +425,7 @@ while i < n:
     
     if ind[1] == 8000:
         ind[1] = 0
-
+    
     # Store the first iteration value for calculating dt
     if i == 1:
         # Calculate the dt by identifying the qrs wave
@@ -448,6 +452,7 @@ while i < n:
         cursor = connection.cursor()
         cursor.execute('UPDATE HPN SET PWV_1 = ?,  PWV_2 = ?, PWV_3 = ?, PWV_4 = ?, PWV_5 = ?, PWV_6 = ?, PWV_7 = ?, PWV_8 = ?, PWV_9 = ?, PWV_10 = ?, PWV_11 = ? WHERE id = 1', (system_pwv[0], system_pwv[1], system_pwv[2], system_pwv[3], system_pwv[4], system_pwv[5], system_pwv[6], system_pwv[7], system_pwv[8], system_pwv[9], system_pwv[10] ) )
         connection.commit()
-        connection.close()
+        connection.close()  
     
     i = i + 1
+

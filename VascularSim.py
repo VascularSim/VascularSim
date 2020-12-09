@@ -28,6 +28,8 @@ index = [1, 1]
 graph_optn = ["twelve","one","seven","nine"]
 
 rd_btn_val = 0
+#1, 2, 8, 20, 34, 47, 75, 42, 95, 104, 88
+stenosis_percent = {'1': None, '2': None, '8': None, '20':None, '34': None, '47': None, '75': None, '42': None, '95': None, '104': None, '88': None }
 
 class Window(object):
 
@@ -833,8 +835,7 @@ class Window(object):
 
         #_________________________PARAMETER LAYOUT__________________________________
         self.parameter_layout = QGridLayout()
-        self.feedback_layout = QGridLayout()
-        self.feedback_layout_2 = QGridLayout()
+
         
         main_label = QLabel()
         main_label.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
@@ -847,121 +848,155 @@ class Window(object):
         # STENOSIS TAB
         self.stenosis_tab = QWidget()
         self.stenosis_tab_layout = QGridLayout() 
-        l1 = QLabel() 
-        l2 = QLabel()
-        l3 = QLabel()
-        l4 = QLabel()
-        l5 = QLabel()
-        l6 = QLabel()
-        l7 = QLabel()
-        l8 = QLabel()
-        l9 = QLabel()
-        l10 = QLabel()
-        l11 = QLabel()
 
-        edit1 = QLineEdit()
-        edit2 = QLineEdit()
-        edit3 = QLineEdit()
-        edit4 = QLineEdit()
-        edit5 = QLineEdit()
-        edit6 = QLineEdit()
-        edit7 = QLineEdit()
-        edit8 = QLineEdit()
-        edit9 = QLineEdit()
-        edit10 = QLineEdit()
-        edit11 = QLineEdit() 
+        self.l1 = QLabel("Ascending Aorta") 
+        self.l2 = QLabel()
+        self.l3 = QLabel()
+        self.l4 = QLabel()
+        self.l5 = QLabel()
+        self.l6 = QLabel()
+        self.l7 = QLabel()
+        self.l8 = QLabel()
+        self.l9 = QLabel()
+        self.l10 = QLabel()
+        self.l11 = QLabel()
+        
+        self.edit1 = QLineEdit("0")
+        self.edit2 = QLineEdit("0")
+        self.edit3 = QLineEdit("0")
+        self.edit4 = QLineEdit("0")
+        self.edit5 = QLineEdit("0")
+        self.edit6 = QLineEdit("0")
+        self.edit7 = QLineEdit("0")
+        self.edit8 = QLineEdit("0")
+        self.edit9 = QLineEdit("0")
+        self.edit10 = QLineEdit("0")
+        self.edit11 = QLineEdit("0")
 
-        l1.setText("This is the first tab") 
-        l1.setStyleSheet("color:white;")
-        l2.setText("This is the first tab") 
-        l2.setStyleSheet("color:white;")
-        l3.setText("This is the first tab") 
-        l3.setStyleSheet("color:white;")
-        l4.setText("This is the first tab") 
-        l4.setStyleSheet("color:white;")
-        l5.setText("This is the first tab") 
-        l5.setStyleSheet("color:white;")
-        l6.setText("This is the first tab") 
-        l6.setStyleSheet("color:white;")
-        l7.setText("This is the first tab") 
-        l7.setStyleSheet("color:white;")
-        l8.setText("This is the first tab") 
-        l8.setStyleSheet("color:white;")
-        l9.setText("This is the first tab") 
-        l9.setStyleSheet("color:white;")
-        l10.setText("This is the first tab") 
-        l10.setStyleSheet("color:white;")
-        l11.setText("This is the first tab") 
-        l11.setStyleSheet("color:white;")
+        stenosis_ok_btn = QPushButton("OK")
+        stenosis_ok_btn.setStyleSheet("background-color: rgb(60,60,60); color:white")
 
-        self.stenosis_tab_layout.addWidget(l1, 0, 0)
-        self.stenosis_tab_layout.addWidget(l2, 1, 0)
-        self.stenosis_tab_layout.addWidget(l3, 2, 0)
-        self.stenosis_tab_layout.addWidget(l4, 3, 0)
-        self.stenosis_tab_layout.addWidget(l5, 4, 0)
-        self.stenosis_tab_layout.addWidget(l6, 5, 0)
-        self.stenosis_tab_layout.addWidget(l7, 6, 0)
-        self.stenosis_tab_layout.addWidget(l8, 7, 0)
-        self.stenosis_tab_layout.addWidget(l9, 8, 0)
-        self.stenosis_tab_layout.addWidget(l10, 9, 0)
-        self.stenosis_tab_layout.addWidget(l11, 10, 0) 
-
-        self.stenosis_tab_layout.addWidget(edit1, 0, 1)
-        self.stenosis_tab_layout.addWidget(edit2, 1, 1)
-        self.stenosis_tab_layout.addWidget(edit3, 2, 1)
-        self.stenosis_tab_layout.addWidget(edit4, 3, 1)
-        self.stenosis_tab_layout.addWidget(edit5, 4, 1)
-        self.stenosis_tab_layout.addWidget(edit6, 5, 1)
-        self.stenosis_tab_layout.addWidget(edit7, 6, 1)
-        self.stenosis_tab_layout.addWidget(edit8, 7, 1)
-        self.stenosis_tab_layout.addWidget(edit9, 8, 1)
-        self.stenosis_tab_layout.addWidget(edit10, 9, 1)
-        self.stenosis_tab_layout.addWidget(edit11, 10, 1)
+        self.edit1.setStyleSheet("color:white;") 
+        self.edit2.setStyleSheet("color:white;") 
+        self.edit3.setStyleSheet("color:white;") 
+        self.edit4.setStyleSheet("color:white;") 
+        self.edit5.setStyleSheet("color:white;") 
+        self.edit6.setStyleSheet("color:white;") 
+        self.edit7.setStyleSheet("color:white;") 
+        self.edit8.setStyleSheet("color:white;") 
+        self.edit9.setStyleSheet("color:white;") 
+        self.edit10.setStyleSheet("color:white;")
+        self.edit11.setStyleSheet("color:white;")
 
 
+        self.l1.setStyleSheet("color:white;")
+        self.l2.setText("Aortic Arch") 
+        self.l2.setStyleSheet("color:white;")
+        self.l3.setText("Subclavian") 
+        self.l3.setStyleSheet("color:white;")
+        self.l4.setText("Carotid") 
+        self.l4.setStyleSheet("color:white;")
+        self.l5.setText("Thoracic") 
+        self.l5.setStyleSheet("color:white;")
+        self.l6.setText("Cereberal") 
+        self.l6.setStyleSheet("color:white;")
+        self.l7.setText("Abdominal") 
+        self.l7.setStyleSheet("color:white;")
+        self.l8.setText("Brachial") 
+        self.l8.setStyleSheet("color:white;")
+        self.l9.setText("Ulnar") 
+        self.l9.setStyleSheet("color:white;")
+        self.l10.setText("Femoral")
+        self.l10.setStyleSheet("color:white;")
+        self.l11.setText("Radial")
+        self.l11.setStyleSheet("color:white;")
+
+        self.stenosis_tab_layout.addWidget(self.l1, 0, 0)
+        self.stenosis_tab_layout.addWidget(self.l2, 1, 0)
+        self.stenosis_tab_layout.addWidget(self.l3, 2, 0)
+        self.stenosis_tab_layout.addWidget(self.l4, 3, 0)
+        self.stenosis_tab_layout.addWidget(self.l5, 4, 0)
+        self.stenosis_tab_layout.addWidget(self.l6, 5, 0)
+        self.stenosis_tab_layout.addWidget(self.l7, 6, 0)
+        self.stenosis_tab_layout.addWidget(self.l8, 7, 0)
+        self.stenosis_tab_layout.addWidget(self.l9, 8, 0)
+        self.stenosis_tab_layout.addWidget(self.l10, 9, 0)
+        self.stenosis_tab_layout.addWidget(self.l11, 10, 0) 
+
+        self.stenosis_tab_layout.addWidget(self.edit1, 0, 1)
+        self.stenosis_tab_layout.addWidget(self.edit2, 1, 1)
+        self.stenosis_tab_layout.addWidget(self.edit3, 2, 1)
+        self.stenosis_tab_layout.addWidget(self.edit4, 3, 1)
+        self.stenosis_tab_layout.addWidget(self.edit5, 4, 1)
+        self.stenosis_tab_layout.addWidget(self.edit6, 5, 1)
+        self.stenosis_tab_layout.addWidget(self.edit7, 6, 1)
+        self.stenosis_tab_layout.addWidget(self.edit8, 7, 1)
+        self.stenosis_tab_layout.addWidget(self.edit9, 8, 1)
+        self.stenosis_tab_layout.addWidget(self.edit10, 9, 1)
+        self.stenosis_tab_layout.addWidget(self.edit11, 10, 1)
+
+        self.stenosis_tab_layout.addWidget(stenosis_ok_btn, 11, 0, 1, 0)
         self.stenosis_tab.setLayout(self.stenosis_tab_layout)
 
+        def stenosis_update():
+            global stenosis_percent
+
+            connection = sql.connect("vascularsim.db")
+            cursor = connection.cursor()
+
+            val1 = int(self.edit1.text())
+            val2 = int(self.edit2.text())
+            val3 = int(self.edit3.text())
+            val4 = int(self.edit4.text())
+            val5 = int(self.edit5.text())
+            val6 = int(self.edit6.text())
+            val7 = int(self.edit7.text())
+            val8 = int(self.edit8.text())
+            val9 = int(self.edit9.text())
+            val10 = int(self.edit10.text())
+            val11 = int(self.edit11.text())
+            
+            if val1 == 0 or val2 == 0 or val3 == 0 or val4 == 0 or val5 == 0 or val6 == 0 or val7 == 0 or val8 == 0 or val9 == 0 or val10 == 0 or val11 == 0:
+                cursor.execute('UPDATE HPN SET "STENOSIS_FLAG" = 0 WHERE id = 1')
+            else: cursor.execute('UPDATE HPN SET "STENOSIS_FLAG" = 1 WHERE id = 1')
+
+            connection.commit()
+            connection.close()
+
+            stenosis_percent = {'1': val1, '2': val2, '8': val3, '20': val4, '34': val5, '47': val6, '75': val7, '42': val8, '95': val9, '104': val10, '88': val11 }
+            stenosis(0.04, 1.05, 0.6, **stenosis_percent)
+
+            print(stenosis_percent)
+            
+
+        stenosis_ok_btn.clicked.connect(stenosis_update)
+
+
+        # TEST - 2 TAB
         self.parameters_tab_2 = QWidget()
         gif_label = QLabel()
         
 
         # ADD WIDGET TO TAB WIDGET
         self.parameters_tab_widget.addTab(self.stenosis_tab, "STENOSIS")
-        self.parameters_tab_widget.addTab(self.parameters_tab_2, "TEST-2")
-
-        
-
-        
+        self.parameters_tab_widget.addTab(self.parameters_tab_2, "TEST-2")     
         
         # ADD WIDGETS TO PARAMETERS LAYOUT
         self.parameter_layout.addWidget(main_label, 0, 0, 1, 1)
         self.parameter_layout.addWidget(self.parameters_tab_widget, 1, 0, 1, 2 )
         
-
         # EFFECT OF POSTURE WIDGET
-        
-
         self.effect_of_posture = QWidget()
         self.eof_layout = QGridLayout()
         self.effect_of_posture.setLayout(self.eof_layout)
-
         eof_label = QLabel()
         eof_label.setMinimumSize(QSize(200, 200))
-        
-
         self.eof_layout.addWidget(eof_label, 0, 0)
-       
         self.parameter_layout.addWidget(self.effect_of_posture, 1, 0, 1, 2 )
-
         self.effect_of_posture.setVisible(False)
-        
-
-
 
         # ADD PARAMETERS WIDGET TO MAIN LAYOUT
         self.mainlayout.addLayout(self.parameter_layout, 0,4,12,1)
-        
-
                 
         # ______________________________MENUBAR _____________________________
         
