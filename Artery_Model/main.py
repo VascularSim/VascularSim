@@ -15,6 +15,7 @@ def pulsegen(t, x, clock, it):
     return xdot
 
 def system_simulator(t, x, Vin, clock):
+
     RLC = np.genfromtxt('Artery_Model/Data/STENOSIS_RLC.txt', delimiter=',')
     Rs = RLC[:, 0]
     L = RLC[:, 1]
@@ -435,11 +436,10 @@ while i < n:
         cursor.execute('UPDATE HPN SET FLAG = 1, PEP_1 = ?,  PEP_2 = ?, PEP_3 = ?, PEP_4 = ?, PEP_5 = ?, PEP_6 = ?, PEP_7 = ?, PEP_8 = ?, PEP_9 = ?, PEP_10 = ?, PEP_11 = ? WHERE id = 1', (system_dt[0], system_dt[1], system_dt[2], system_dt[3], system_dt[4], system_dt[5], system_dt[6], system_dt[7], system_dt[8], system_dt[9], system_dt[10] ) )
         connection.commit()
         connection.close()
-       
     
     if i == 0:
         for k in range(11):
-            pwv_arteries_index[k] = np.multiply(np.where(simulation_output[artery_index[k],:] > 0.9)[0][0], 2)
+            pwv_arteries_index[k] = np.multiply(np.where(simulation_output[artery_index[k], :] > 0.9)[0][0], 2)
             system_pwv[k] = (artery_distance[k] / pwv_arteries_index[k]) * 1000
             system_pwv = np.round(system_pwv, 2)
     

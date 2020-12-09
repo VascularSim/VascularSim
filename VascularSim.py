@@ -834,20 +834,15 @@ class Window(object):
         #_________________________PARAMETER LAYOUT__________________________________
         self.parameter_layout = QGridLayout()
         self.feedback_layout = QGridLayout()
-        self.feedback_layout_2 = QGridLayout()      
+        self.feedback_layout_2 = QGridLayout()
         
         main_label = QLabel()
-        main_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        #main_label.setStyleSheet("background-color:white;")
-        #main_label.setText("STENOSIS")
-        gif = QMovie("1.gif")
-        gif.setCacheMode(QMovie.CacheAll) 
-        gif.setSpeed(100)
-        main_label.setMovie(gif)
-        gif.start()
+        main_label.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        main_label.setStyleSheet("color:white;")
+        main_label.setText("STENOSIS")
 
         self.parameters_tab_widget = QTabWidget()
-        self.parameters_tab_widget.setStyleSheet("background-color:black;")
+        self.parameters_tab_widget.setStyleSheet("background-color: rgb(30,30,30);")
 
         # STENOSIS TAB
         self.stenosis_tab = QWidget()
@@ -927,40 +922,24 @@ class Window(object):
         self.stenosis_tab.setLayout(self.stenosis_tab_layout)
 
         self.parameters_tab_2 = QWidget()
+        gif_label = QLabel()
+        
+
+        # ADD WIDGET TO TAB WIDGET
         self.parameters_tab_widget.addTab(self.stenosis_tab, "STENOSIS")
         self.parameters_tab_widget.addTab(self.parameters_tab_2, "TEST-2")
 
         
 
-        # FEEDBACK LAYOUT 
-        feedback_label_1 = QLabel()
-        feedback_label_1.setText("feedback_1")
-        feedback_label_2 = QLabel()
-        feedback_label_2.setText("feedback_2")
-        feedback_label_3 = QLabel()
-        feedback_label_3.setText("feedback_3")
-        feedback_label_4 = QLabel()
-        feedback_label_4.setText("feedback_4")
-        feedback_label_5 = QLabel()
-        feedback_label_5.setText("feedback_5")
-        feedback_label_6 = QLabel()
-        feedback_label_6.setText("feedback_6")
         
-        self.feedback_layout.addWidget(feedback_label_1, 0, 0)
-        self.feedback_layout.addWidget(feedback_label_2, 1, 0)
-        self.feedback_layout.addWidget(feedback_label_3, 2, 0)
-        self.feedback_layout_2.addWidget(feedback_label_4, 0, 0)
-        self.feedback_layout_2.addWidget(feedback_label_5, 1, 0)
-        self.feedback_layout_2.addWidget(feedback_label_6, 2, 0)
         
         # ADD WIDGETS TO PARAMETERS LAYOUT
         self.parameter_layout.addWidget(main_label, 0, 0, 1, 1)
         self.parameter_layout.addWidget(self.parameters_tab_widget, 1, 0, 1, 2 )
-        self.parameter_layout.addLayout(self.feedback_layout, 2, 0, 1, 1)
-        self.parameter_layout.addLayout(self.feedback_layout_2, 2, 1, 1, 1)
+        
 
         # EFFECT OF POSTURE WIDGET
-        self.parameters_tab_widget.setVisible(False)
+        
 
         self.effect_of_posture = QWidget()
         self.eof_layout = QGridLayout()
@@ -973,6 +952,8 @@ class Window(object):
         self.eof_layout.addWidget(eof_label, 0, 0)
        
         self.parameter_layout.addWidget(self.effect_of_posture, 1, 0, 1, 2 )
+
+        self.effect_of_posture.setVisible(False)
         
 
 
@@ -1385,7 +1366,6 @@ class Window(object):
         alert.setStyleSheet("background-color: rgb(60, 60, 60);\n" "color: rgb(240, 240, 240);\n")
         alert.setText(msg)
         alert.exec_()
-
 
 
 if __name__ == "__main__":
