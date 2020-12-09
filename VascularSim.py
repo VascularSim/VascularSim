@@ -860,7 +860,7 @@ class Window(object):
         self.l9 = QLabel()
         self.l10 = QLabel()
         self.l11 = QLabel()
-        
+
         self.edit1 = QLineEdit("0")
         self.edit2 = QLineEdit("0")
         self.edit3 = QLineEdit("0")
@@ -959,16 +959,14 @@ class Window(object):
             if val1 == 0 or val2 == 0 or val3 == 0 or val4 == 0 or val5 == 0 or val6 == 0 or val7 == 0 or val8 == 0 or val9 == 0 or val10 == 0 or val11 == 0:
                 cursor.execute('UPDATE HPN SET "STENOSIS_FLAG" = 0 WHERE id = 1')
             else: cursor.execute('UPDATE HPN SET "STENOSIS_FLAG" = 1 WHERE id = 1')
-
             connection.commit()
             connection.close()
 
             stenosis_percent = {'1': val1, '2': val2, '8': val3, '20': val4, '34': val5, '47': val6, '75': val7, '42': val8, '95': val9, '104': val10, '88': val11 }
             stenosis(0.04, 1.05, 0.6, **stenosis_percent)
 
-            print(stenosis_percent)
-            
-
+            #print(stenosis_percent)
+        
         stenosis_ok_btn.clicked.connect(stenosis_update)
 
 
@@ -989,11 +987,41 @@ class Window(object):
         self.effect_of_posture = QWidget()
         self.eof_layout = QGridLayout()
         self.effect_of_posture.setLayout(self.eof_layout)
+
         eof_label = QLabel()
-        eof_label.setMinimumSize(QSize(200, 200))
-        self.eof_layout.addWidget(eof_label, 0, 0)
-        self.parameter_layout.addWidget(self.effect_of_posture, 1, 0, 1, 2 )
+        eof_label_1 = QLabel()
+
+
+        eof_label.setMinimumSize(200,200)
+        eof_label.setStyleSheet("image:url(./Resources/2.jpg);")
+
+        eof_label_1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+
+        eof_btn_1 = QPushButton("Tilt OFF")
+        eof_btn_2 = QPushButton("Tilt ON")
+
+        
+
+        self.eof_layout.addWidget(eof_label, 0, 0, 1, 0)
+        self.eof_layout.addWidget(eof_btn_1, 1, 0)
+        self.eof_layout.addWidget(eof_btn_2, 1, 1)
+        self.eof_layout.addWidget(eof_label_1, 2, 0, 1, 0)
         self.effect_of_posture.setVisible(False)
+
+        def tilt_off():
+            eof_label.setStyleSheet("image:url(./Resources/2.jpg);")
+            
+            
+        def tilt_on():
+            eof_label.setStyleSheet("image:url(./Resources/3.png);")
+            
+
+        eof_btn_1.clicked.connect(tilt_off)
+        eof_btn_2.clicked.connect(tilt_on)
+
+        self.parameter_layout.addWidget(self.effect_of_posture, 1, 0, 1, 2 )
+        
 
         # ADD PARAMETERS WIDGET TO MAIN LAYOUT
         self.mainlayout.addLayout(self.parameter_layout, 0,4,12,1)
@@ -1017,18 +1045,23 @@ class Window(object):
         self.menuFile.addAction(self.actionQuit)
 
         # ============MENU SIMULATION
+        
         def swap_tab():
-            print("clicked")
+            self.parameters_tab_widget.setVisible(False)
+            self.effect_of_posture.setVisible(True)
+
+        
         self.menuSimulation = QMenu(self.menubar)      
         
         self.menuMedical_Experiments = QMenu(self.menuSimulation)
         self.actionEffect_of_POSTURE = QAction(self.MainWindow)
         self.actionEffect_of_muscular_exercise = QAction(self.MainWindow)
+        self.Action_Effect_of_Stenosis = QAction(self.MainWindow)
 
         self.menuMedical_Experiments.addAction(self.actionEffect_of_POSTURE)
         self.menuMedical_Experiments.addAction(self.actionEffect_of_muscular_exercise)
+        self.menuMedical_Experiments.addAction(self.Action_Effect_of_Stenosis)
 
-        
         self.actionHuman_arterial_tree = QAction(self.MainWindow)
         self.actionFoetal_Circulation = QAction(self.MainWindow)
 
@@ -1039,7 +1072,8 @@ class Window(object):
         self.menuSimulation.addAction(self.menuMedical_Experiments.menuAction())
 
         self.actionEffect_of_POSTURE.triggered.connect(swap_tab)#.clicked.connect(swap_tab)
-        
+        self.Action_Effect_of_Stenosis.setText("Effect of Stenosis")
+
         # ============MENU GRAPH
         self.menuGraph = QMenu(self.menubar)
 
@@ -1137,7 +1171,7 @@ class Window(object):
         self.actionQuit.setText( "Quit")
         self.actionHuman_arterial_tree.setText( "Human arterial tree")
         self.actionFoetal_Circulation.setText( "Fetal Circulation")
-        self.actionEffect_of_POSTURE.setText( "Effect of POSTURE")
+        self.actionEffect_of_POSTURE.setText( "Effect of Posture")
         self.actionEffect_of_muscular_exercise.setText( "Effect of muscular exercise")
         self.actionClear_graph.setText( "Clear")
         self.actionReset.setText( "Reset")
