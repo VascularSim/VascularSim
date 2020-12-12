@@ -63,6 +63,7 @@ def stenosis(M, R, G, **data):
     r = at[:, 1]                                          #assigning r with dataframe of 1st col of a variable
     h = at[:, 2]                                          #assigning h with dataframe of 2nd col of a variable
     E = np.multiply(at[:, 3], 10e+5)                      #assigning E with dataframe of 3rd col of a variable
+
     RLC[:, 0] = np.true_divide(8*mu*l, np.power(pi*np.multiply(np.subtract(r, D), r), 4))   #8*mu*l ./ (pi*(r-D.*r).^4);
     RLC[:, 1] = np.true_divide(np.multiply(l, rho), (pi*np.power(np.multiply(np.subtract(r, D), r), 2)))   # l.*rho ./ ((pi*(r-D.*r).^2))
     RLC[:, 2] = np.multiply(np.multiply(3*pi, l), np.true_divide(np.power(np.multiply(np.subtract(r, D), r), 3), np.multiply(2*E, h)))  #3*pi.*l .* (r-D.*r).^3./(2*E.*h)
@@ -76,9 +77,9 @@ def stenosis(M, R, G, **data):
     print("time: ",e-s)
 
 if __name__ == "__main__":
-    
+
     #artery_index = [1, 2, 8, 20, 34, 47, 75, 42, 95, 104, 88]
-    stn_dat = {'1': 100, '2': 100, '8': 100, '20':100, '34': 100, '47': 100, '75': 100, '42': 100, '95': 100, '104': 100, '88': 100 }
+    stn_dat = {'1': 30, '2': 0, '8': 0, '20':0, '34': 0, '47': 0, '75': 0, '42': 0, '95': 0, '104': 0, '88': 0 }
     stenosis(0.04, 1.05, 0.6, **stn_dat)
     
 

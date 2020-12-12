@@ -836,7 +836,6 @@ class Window(object):
         #_________________________PARAMETER LAYOUT__________________________________
         self.parameter_layout = QGridLayout()
 
-        
         self.main_label = QLabel()
         self.main_label.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         self.main_label.setStyleSheet("color:white;")
@@ -888,11 +887,10 @@ class Window(object):
         self.edit10.setStyleSheet("color:white;")
         self.edit11.setStyleSheet("color:white;")
 
-
         self.l1.setStyleSheet("color:white;")
-        self.l2.setText("Aortic Arch") 
+        self.l2.setText("Aortic Arch")
         self.l2.setStyleSheet("color:white;")
-        self.l3.setText("Subclavian") 
+        self.l3.setText("Subclavian")
         self.l3.setStyleSheet("color:white;")
         self.l4.setText("Carotid") 
         self.l4.setStyleSheet("color:white;")
@@ -957,8 +955,10 @@ class Window(object):
             val11 = int(self.edit11.text())
             
             if val1 == 0 or val2 == 0 or val3 == 0 or val4 == 0 or val5 == 0 or val6 == 0 or val7 == 0 or val8 == 0 or val9 == 0 or val10 == 0 or val11 == 0:
+            #if val1 == 0 and val2 == 0 and val3 == 0 and val4 == 0 and val5 == 0 and val6 == 0 and val7 == 0 and val8 == 0 and val9 == 0 and val10 == 0 and val11 == 0:
                 cursor.execute('UPDATE HPN SET "STENOSIS_FLAG" = 0 WHERE id = 1')
-            else: cursor.execute('UPDATE HPN SET "STENOSIS_FLAG" = 1 WHERE id = 1')
+            else: 
+                cursor.execute('UPDATE HPN SET "STENOSIS_FLAG" = 1 WHERE id = 1')
             connection.commit()
             connection.close()
 
@@ -969,12 +969,10 @@ class Window(object):
         
         stenosis_ok_btn.clicked.connect(stenosis_update)
 
-
         # TEST - 2 TAB
         self.parameters_tab_2 = QWidget()
         gif_label = QLabel()
         
-
         # ADD WIDGET TO TAB WIDGET
         self.parameters_tab_widget.addTab(self.stenosis_tab, "STENOSIS")
         self.parameters_tab_widget.addTab(self.parameters_tab_2, "TEST-2")     
@@ -996,7 +994,6 @@ class Window(object):
         eof_label.setStyleSheet("image:url(./Resources/2.jpg);")
 
         eof_label_1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
 
         eof_btn_1 = QPushButton("Tilt OFF")
         eof_btn_2 = QPushButton("Tilt ON")
@@ -1053,6 +1050,12 @@ class Window(object):
             self.parameters_tab_widget.setVisible(False)
             self.effect_of_posture.setVisible(True)
 
+        def stenosis_tab():
+            self.main_label.setVisible(True)
+            self.parameters_tab_widget.setVisible(True)
+            self.effect_of_posture.setVisible(False)
+
+
         
         self.menuSimulation = QMenu(self.menubar)      
         
@@ -1076,6 +1079,8 @@ class Window(object):
 
         self.actionEffect_of_POSTURE.triggered.connect(swap_tab)#.clicked.connect(swap_tab)
         self.Action_Effect_of_Stenosis.setText("Effect of Stenosis")
+        self.Action_Effect_of_Stenosis.triggered.connect(stenosis_tab)
+
 
         # ============MENU GRAPH
         self.menuGraph = QMenu(self.menubar)

@@ -15,9 +15,19 @@ def pulsegen(t, x, clock, it):
     return xdot
 
 def system_simulator(t, x, Vin, clock):
+
+    connection = sql.connect("vascularsim.db")
+    cursor = connection.cursor()
+    cursor.execute("SELECT STENOSIS_FLAG FROM HPN WHERE ID = 1")
+    rows = cursor.fetchone()
+    Stenosis_flag = rows[0]
+    connection.close()
+    
     if stenosis_flag == 0:
         RLC = np.genfromtxt('Artery_Model/Data/ARTERY_RLC.txt', delimiter=',')
-    else: RLC = np.genfromtxt('Artery_Model/Data/STENOSIS_RLC.txt', delimiter=',')
+    else: 
+        RLC = np.genfromtxt('Artery_Model/Data/STENOSIS_RLC.txt', delimiter=',')
+    
     Rs = RLC[:, 0]
     L = RLC[:, 1]
     C = RLC[:, 2]
@@ -360,24 +370,23 @@ pwv_arteries_index = np.empty(11)
 system_init = np.zeros(256)
 
 # Loop parameters
-n = 10
+n = 100
 i = 0
 ind = [0, 0]
 
 # FOR CHECKNG PREV VALUE & NXT VALUE IS SAME 
 heart_rate_check = deque([0, 0], maxlen=2)
 
-#Stenosis FLAG
-stenosis_flag = None
 
-while i < n:    
+while i < n:
     # FETCH HR VALUE FROM DATABASE
     connection = sql.connect("vascularsim.db")
     cursor = connection.cursor()
-    cursor.execute("SELECT HR, STENOSIS_FLAG FROM HPN WHERE ID = 1")
+    cursor.execute("SELECT HR FROM HPN WHERE ID = 1")
     rows = cursor.fetchone()
     HR = rows[0]
-    stenosis_flag = rows[1]
+    
+    
     
     # APPEND HEART RATE FOR CHECKING
     heart_rate_check.append(HR)
