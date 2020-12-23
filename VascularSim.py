@@ -15,7 +15,6 @@ import queries
 
 from Artery_Model.Stenosis import stenosis
 
-
 speed = 20
 data1 = np.empty(2000)
 data2 = np.empty(2000)
@@ -56,8 +55,6 @@ class Window(object):
         self.graph2_optn = QRadioButton(self.centralwidget)
         self.graph3_optn = QRadioButton(self.centralwidget)
         self.graph4_optn = QRadioButton(self.centralwidget)
-
-
 
         # BUTTONS
         self.playbtn = QPushButton(self.centralwidget) 
@@ -598,7 +595,7 @@ class Window(object):
         def set_Graph_optn(obj):
             obj.setLabel('bottom', text='(ms)')
             obj.setDownsampling(mode='peak')
-            obj.setClipToView(True)
+            #obj.setClipToView(True)
             obj.getAxis('bottom').setScale(2)
             obj.getAxis('bottom').setTickSpacing(1000, 10)
             #obj.showGrid(x=True, y=True, alpha=0.3)
@@ -620,23 +617,23 @@ class Window(object):
         plotwin.nextRow()
         self.p2 = plotwin.addPlot()
         set_Graph_optn(self.p2)
+        self.p2.setRange(yRange=[0, 200])
         self.curve2 = self.p2.plot()
         self.curve2.setPen('#0096ff')  # Blue pen
-
 
         # THIRD PLOT
         plotwin.nextRow()
         self.p3 = plotwin.addPlot()
-        
         set_Graph_optn(self.p3)
+        self.p3.setRange(yRange=[0, 200])
         self.curve3 = self.p3.plot()
         self.curve3.setPen('#fc02f8')  # Pink pen
 
         # FOURTH PLOT
         plotwin.nextRow()
         self.p4 = plotwin.addPlot()
-        
         set_Graph_optn(self.p4)
+        self.p4.setRange(yRange=[0, 200])
         self.curve4 = self.p4.plot()
         self.curve4.setPen('y')  # Yellow pen
 
@@ -650,13 +647,10 @@ class Window(object):
             global rd_btn_val
             if type == "r1":
                 rd_btn_val = 0
-            
             elif type == "r2":
                 rd_btn_val = 1
-            
             elif type == "r3":
                 rd_btn_val = 2
-            
             else:
                 rd_btn_val = 3
         
@@ -678,7 +672,6 @@ class Window(object):
 
         self.mainlayout.addLayout(self.graph_optn_layout, 1, 1, 1, 2)
         
-
         # ________________________________GRLAYOUT_______________________________________
         inner_glayout = QGridLayout()
         self.grlayout.addLayout(inner_glayout, 1, 0, 1, 1)
@@ -694,7 +687,7 @@ class Window(object):
             
             subprocess.Popen("./main/main.exe",shell=False,close_fds=False)
             index = [1, 1]
-                        
+
             connection.commit()
             connection.close()
             self.alert(" UPDATED     ")
@@ -989,7 +982,6 @@ class Window(object):
         eof_label = QLabel()
         eof_label_1 = QLabel()
 
-
         eof_label.setMinimumSize(200,200)
         eof_label.setStyleSheet("image:url(./Resources/2.jpg);")
 
@@ -997,8 +989,6 @@ class Window(object):
 
         eof_btn_1 = QPushButton("Tilt OFF")
         eof_btn_2 = QPushButton("Tilt ON")
-
-        
 
         self.eof_layout.addWidget(eof_label, 0, 0, 1, 0)
         self.eof_layout.addWidget(eof_btn_1, 1, 0)
@@ -1009,13 +999,26 @@ class Window(object):
         def tilt_off():
             self.main_label.setVisible(False)
             eof_label.setStyleSheet("image:url(./Resources/2.jpg);")
-            
-            
+
+            if self.process_exists('baro_main.exe'):
+                os.system('taskkill /f /im main.exe')
+                self.timer.timeout.connect(self.update)
+                self.timer.start(speed)
+                self.alert(" SIMULATING...    ")
+
+            subprocess.Popen("./main/main.exe",shell=False,close_fds=False)
+        
         def tilt_on():
             self.main_label.setVisible(False)
             eof_label.setStyleSheet("image:url(./Resources/3.png);")
-            
 
+            if self.process_exists('main.exe'):
+                os.system('taskkill /f /im main.exe')
+                self.timer.timeout.connect(self.update)
+                self.timer.start(speed)
+                self.alert(" SIMULATING...    ")
+            subprocess.Popen("./baro_main/baro_main.exe",shell=False,close_fds=False)
+            
         eof_btn_1.clicked.connect(tilt_off)
         eof_btn_2.clicked.connect(tilt_on)
 
@@ -1044,7 +1047,6 @@ class Window(object):
         self.menuFile.addAction(self.actionQuit)
 
         # ============MENU SIMULATION
-        
         def swap_tab():
             self.main_label.setVisible(False)
             self.parameters_tab_widget.setVisible(False)
@@ -1054,9 +1056,7 @@ class Window(object):
             self.main_label.setVisible(True)
             self.parameters_tab_widget.setVisible(True)
             self.effect_of_posture.setVisible(False)
-
-
-        
+       
         self.menuSimulation = QMenu(self.menubar)      
         
         self.menuMedical_Experiments = QMenu(self.menuSimulation)
@@ -1417,13 +1417,12 @@ class Window(object):
 
     def run(self):
         global speed
-
+        
         try:
-
             if self.process_exists('main.exe'):
                 self.timer.start(speed)
                 self.alert(" SIMULATING...    ")
-            
+        
             else:
                 subprocess.Popen("./main/main.exe",shell=False,close_fds=False)
                 self.timer.timeout.connect(self.update)

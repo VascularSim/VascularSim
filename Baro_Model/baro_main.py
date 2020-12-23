@@ -15,7 +15,6 @@ def pulsegen(t, x, clock, it):
     return xdot
 
 def system_simulator(t, x, Vin, clock):
-
     connection = sql.connect("vascularsim.db")
     cursor = connection.cursor()
     cursor.execute("SELECT STENOSIS_FLAG FROM HPN WHERE ID = 1")
@@ -333,7 +332,6 @@ def system_simulator(t, x, Vin, clock):
     return xdot
 
 
-
 ############################################################################################
                                     #AVOLIO SIMULATION PARAMETERS
 ############################################################################################
@@ -342,7 +340,7 @@ def system_simulator(t, x, Vin, clock):
 PF = 450
 
 # Set step size
-dt = 0.002
+dt = 0.001
 
 # Array to store 1st iteration values to calculate dt
 system_dt = np.empty(11)
@@ -370,13 +368,12 @@ pwv_arteries_index = np.empty(11)
 system_init = np.zeros(256)
 
 # Loop parameters
-n = 100
+n = 10
 i = 0
 ind = [0, 0]
 
 # FOR CHECKNG PREV VALUE & NXT VALUE IS SAME 
 heart_rate_check = deque([0, 0], maxlen=2)
-
 
 while i < n:
     # FETCH HR VALUE FROM DATABASE
@@ -385,8 +382,6 @@ while i < n:
     cursor.execute("SELECT HR FROM HPN WHERE ID = 1")
     rows = cursor.fetchone()
     HR = rows[0]
-    
-    
     
     # APPEND HEART RATE FOR CHECKING
     heart_rate_check.append(HR)
@@ -405,19 +400,50 @@ while i < n:
             ecg_index += 1
     connection.commit()
     connection.close()
+
+    if HR >= 60 and HR < 65:
+        baro_pulse = np.genfromtxt("Artery_Model/Data/baro_data_part1.txt", delimiter='/n')
+        baro_pulse = baro_pulse[0:10000]
+
+    if HR >= 65 and HR < 70:
+        baro_pulse = np.genfromtxt("Artery_Model/Data/baro_data_part1.txt", delimiter='/n')
+        baro_pulse = baro_pulse[10000:20000]
+
+    if HR >= 70 and HR < 75:
+        baro_pulse = np.genfromtxt("Artery_Model/Data/baro_data_part1.txt", delimiter='/n')
+        baro_pulse = baro_pulse[20000:30000]
+
+    if HR >= 75 and HR < 80:
+        baro_pulse = np.genfromtxt("Artery_Model/Data/baro_data_part1.txt", delimiter='/n')
+        baro_pulse = baro_pulse[30000:40000]
     
+    if HR >= 80 and HR < 85:
+        baro_pulse = np.genfromtxt("Artery_Model/Data/baro_data_part1.txt", delimiter='/n')
+        baro_pulse = baro_pulse[40000:50000]
+
+    if HR >= 85 and HR < 90:
+        baro_pulse = np.genfromtxt("Artery_Model/Data/baro_data_part2.txt", delimiter='/n')
+        baro_pulse = baro_pulse[0:10000]
+
+    if HR >= 90 and HR < 95:
+        baro_pulse = np.genfromtxt("Artery_Model/Data/baro_data_part2.txt", delimiter='/n')
+        baro_pulse = baro_pulse[10000:20000]
+
+    if HR >= 95 and HR < 100 :
+        baro_pulse = np.genfromtxt("Artery_Model/Data/baro_data_part2.txt", delimiter='/n')
+        baro_pulse = baro_pulse[20000:30000]
+
+    if HR >= 100 :
+        baro_pulse = np.genfromtxt("Artery_Model/Data/baro_data_part2.txt", delimiter='/n')
+        baro_pulse = baro_pulse[30000:40000]
+
     # Time axis for each iteration
     clock = np.arange(i, i+1, dt)
     # Function to be given for interpolation (fp)
     it = np.multiply((1 - np.floor((np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) + 0.7)), (PF * (np.square(np.sin(3.14 * (np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) / 0.3)))))    
-    # Pulse generator output which is to be given as input to the Avolio model
-    pulse_output = (solve_ivp(pulsegen, [i, i+1], pulse_init, args=(clock, it), method='Radau', t_eval=clock)).y
-    # Update the initial value to be given to the solver as the last value of the previous iteration
-    pulse_init = [pulse_output[0,-1], pulse_output[1,-1]]    
-    # Convert 2d output to 1-d
-    pu = it.transpose()
-    # This is the output (1D) to be given to the system
-    pulse = (pu - pulse_output[0, :]) * 0.11 + pulse_output[1, :]
+
+    pulse = baro_pulse[i*1000:(i+1)*1000]
+    
     # Solving the Avolio model using Radau method
     simulation_output = (solve_ivp(system_simulator, [i, i+1], system_init, args=(pulse, clock), method='Radau', t_eval=clock, first_step = 0.01, rtol = 1e-1, atol = 1e-1)).y
     # Update the initial value to be given to the solver as the last value of the previous iteration
