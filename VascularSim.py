@@ -987,8 +987,8 @@ class Window(object):
 
         eof_label_1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        eof_btn_1 = QPushButton("Tilt OFF")
-        eof_btn_2 = QPushButton("Tilt ON")
+        eof_btn_1 = QPushButton("Supine")
+        eof_btn_2 = QPushButton("Standing")
 
         self.eof_layout.addWidget(eof_label, 0, 0, 1, 0)
         self.eof_layout.addWidget(eof_btn_1, 1, 0)
@@ -1003,7 +1003,7 @@ class Window(object):
             if self.process_exists('baro_main.exe'):
                 os.system('taskkill /f /im main.exe')
                 self.timer.timeout.connect(self.update)
-                self.timer.start(speed)
+                #self.timer.start(speed)
                 self.alert(" SIMULATING...    ")
 
             subprocess.Popen("./main/main.exe",shell=False,close_fds=False)
@@ -1015,8 +1015,8 @@ class Window(object):
             if self.process_exists('main.exe'):
                 os.system('taskkill /f /im main.exe')
                 self.timer.timeout.connect(self.update)
-                self.timer.start(speed)
-                self.alert(" SIMULATING...    ")
+                #self.timer.start(speed)
+                self.alert(" SIMULATING...  ")
             subprocess.Popen("./baro_main/baro_main.exe",shell=False,close_fds=False)
             
         eof_btn_1.clicked.connect(tilt_off)
@@ -1039,12 +1039,16 @@ class Window(object):
         self.actionCreate_profile =QAction(self.MainWindow)
         self.actionSettings = QAction(self.MainWindow)
         self.actionQuit = QAction(self.MainWindow)
+        self.actionReset_all = QAction(self.MainWindow)
 
         self.menuFile.addAction(self.actionCreate_profile)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionSettings)
         self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionReset_all)
         self.menuFile.addAction(self.actionQuit)
+
+        self.actionQuit.triggered.connect(self.exit)
 
         # ============MENU SIMULATION
         def swap_tab():
@@ -1087,58 +1091,42 @@ class Window(object):
 
         self.actionGraph_options = QAction(self.MainWindow)
         self.actionClear_all = QAction(self.MainWindow)
-        self.actionReset_all = QAction(self.MainWindow)
+        
 
         self.menuGraph.addAction(self.actionGraph_options)
         self.menuGraph.addAction(self.actionClear_all)
-        self.menuGraph.addAction(self.actionReset_all)
 
         self.actionClear_graph = QAction(self.MainWindow)
         self.actionReset = QAction(self.MainWindow)
 
-        self.actionGraph_5 = QAction(self.MainWindow)
-        self.actionGraph_6 = QAction(self.MainWindow)
-        self.actionGraph_7 = QAction(self.MainWindow)
-        self.actionGraph_8 = QAction(self.MainWindow)
 
-        self.menuClear = QMenu(self.menuGraph)
-        self.actionGraph_1 = QAction(self.MainWindow)
-        self.actionGraph_2 = QAction(self.MainWindow)
-        self.actionGraph_3 = QAction(self.MainWindow)
-        self.actionGraph_4 = QAction(self.MainWindow)
+        # ============MENU HELP
+        self.menuHelp = QMenu(self.menubar)
 
-        self.menuClear.addAction(self.actionGraph_1)
-        self.menuClear.addAction(self.actionGraph_2)
-        self.menuClear.addAction(self.actionGraph_3)
-        self.menuClear.addAction(self.actionGraph_4)
-
-        self.menuGraph.addAction(self.menuClear.menuAction())
-
-        # ============MENU ABOUT
-        self.menuAbout = QMenu(self.menubar)
-
-        self.actionHelp = QAction(self.MainWindow)
+        self.actionDocumentation = QAction(self.MainWindow)
+        self.actionReleaseNotes = QAction(self.MainWindow)
         self.actionUser_manual = QAction(self.MainWindow)
         self.actionAbout = QAction(self.MainWindow)
         self.actionDevelopers = QAction(self.MainWindow)
 
-        self.menuAbout.addAction(self.actionHelp)
-        self.menuAbout.addAction(self.actionUser_manual)
-        self.menuAbout.addAction(self.actionAbout)
-        self.menuAbout.addAction(self.actionDevelopers)
+
+        self.menuHelp.addAction(self.actionDocumentation)
+        self.menuHelp.addAction(self.actionUser_manual)
+        self.menuHelp.addAction(self.actionAbout)
+        self.menuHelp.addAction(self.actionDevelopers)
 
 
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSimulation.menuAction())
         self.menubar.addAction(self.menuGraph.menuAction())
-        self.menubar.addAction(self.menuAbout.menuAction())
+        self.menubar.addAction(self.menuHelp.menuAction())
 
         
         for i in range(2000):
             self.xdata.append(i+1)
         
         self.stylesheet()
-        self.text()  
+        self.text()
 
     def text(self):
         self.btn.setText("Ascending Aorta")
@@ -1172,8 +1160,8 @@ class Window(object):
         self.menuSimulation.setTitle( "Simulation")
         self.menuMedical_Experiments.setTitle( "Medical Experiments")
         self.menuGraph.setTitle( "Graph")
-        self.menuClear.setTitle( "Clear")
-        self.menuAbout.setTitle( "About")
+       
+        self.menuHelp.setTitle( "Help")
         self.actionCreate_profile.setText( "Create profile")
         self.actionSettings.setText( "Settings")
         self.actionQuit.setText( "Quit")
@@ -1188,17 +1176,8 @@ class Window(object):
         self.actionClear_all.setText( "Clear all")
         self.actionReset_all.setText( "Reset")
 
-        self.actionGraph_1.setText( "Graph - 1")
-        self.actionGraph_2.setText( "Graph - 2")
-        self.actionGraph_3.setText( "Graph - 3")
-        self.actionGraph_4.setText( "Graph - 4")
-        self.actionGraph_5.setText( "Graph - 1")
-        self.actionGraph_6.setText( "Graph - 2")
-        self.actionGraph_7.setText( "Graph - 3")
-        self.actionGraph_8.setText( "Graph - 4")
 
-
-        self.actionHelp.setText( "Help")
+        self.actionDocumentation.setText( "Documentation")
         self.actionUser_manual.setText( "User manual")
         self.actionAbout.setText( "About")
         self.actionDevelopers.setText( "Developers")
@@ -1314,6 +1293,7 @@ class Window(object):
                 data3 = np.append(temp2, val2)
                 data4 = np.append(temp3, val3)
 
+
                 for t in range(5):
                     self.xdata.append(self.xdata[1999]+(1) )
 
@@ -1321,6 +1301,8 @@ class Window(object):
                 self.curve2.setData(x = self.xdata, y = data1)
                 self.curve3.setData(x = self.xdata, y = data3)
                 self.curve4.setData(x = self.xdata, y = data4)
+
+                peak = np.max(data2)
 
                 ptr1 += 5
                 index[1] += 1
@@ -1401,13 +1383,19 @@ class Window(object):
                     self.curve2.setData(x = list(itertools.islice(self.xdata, 0, int(index[1]*5) )) , y = data1[: index[1]*5])
                     self.curve3.setData(data3[: index[1]*5])
                     self.curve4.setData(x = list(itertools.islice(self.xdata, 0, int(index[1]*5) )) , y = data4[: index[1]*5])
-                    #self.curve1.setPos(-ptr1+3050, 0)
 
                 except Exception as e:
                     self.alert(str(e))
                 
+                peak = np.max(data2)
+                
                 ptr1 += 5
                 index[1] += 1
+
+
+            
+            #print(data2)
+            self.sbpbox.setText(str(peak*100))
 
     def process_exists(self, process_name):
             call = 'TASKLIST', '/FI', 'imagename eq %s' % process_name
@@ -1442,6 +1430,9 @@ class Window(object):
         alert.setStyleSheet("background-color: rgb(60, 60, 60);\n" "color: rgb(240, 240, 240);\n")
         alert.setText(msg)
         alert.exec_()
+
+    def exit(self):
+        sys.exit()
 
 
 if __name__ == "__main__":

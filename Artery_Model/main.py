@@ -408,16 +408,22 @@ while i < n:
     
     # Time axis for each iteration
     clock = np.arange(i, i+1, dt)
+
     # Function to be given for interpolation (fp)
     it = np.multiply((1 - np.floor((np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) + 0.7)), (PF * (np.square(np.sin(3.14 * (np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) / 0.3)))))    
+    
     # Pulse generator output which is to be given as input to the Avolio model
     pulse_output = (solve_ivp(pulsegen, [i, i+1], pulse_init, args=(clock, it), method='Radau', t_eval=clock)).y
+
     # Update the initial value to be given to the solver as the last value of the previous iteration
     pulse_init = [pulse_output[0,-1], pulse_output[1,-1]]    
+
     # Convert 2d output to 1-d
     pu = it.transpose()
+
     # This is the output (1D) to be given to the system
     pulse = (pu - pulse_output[0, :]) * 0.11 + pulse_output[1, :]
+
     # Solving the Avolio model using Radau method
     simulation_output = (solve_ivp(system_simulator, [i, i+1], system_init, args=(pulse, clock), method='Radau', t_eval=clock, first_step = 0.01, rtol = 1e-1, atol = 1e-1)).y
     # Update the initial value to be given to the solver as the last value of the previous iteration
@@ -451,6 +457,7 @@ while i < n:
         connection.close()
     
     if i == 0:
+        
         for k in range(11):
             pwv_arteries_index[k] = np.multiply(np.where(simulation_output[artery_index[k], :] > 0.9)[0][0], 2)
             system_pwv[k] = (artery_distance[k] / pwv_arteries_index[k]) * 1000
@@ -461,7 +468,7 @@ while i < n:
         cursor = connection.cursor()
         cursor.execute('UPDATE HPN SET PWV_1 = ?,  PWV_2 = ?, PWV_3 = ?, PWV_4 = ?, PWV_5 = ?, PWV_6 = ?, PWV_7 = ?, PWV_8 = ?, PWV_9 = ?, PWV_10 = ?, PWV_11 = ? WHERE id = 1', (system_pwv[0], system_pwv[1], system_pwv[2], system_pwv[3], system_pwv[4], system_pwv[5], system_pwv[6], system_pwv[7], system_pwv[8], system_pwv[9], system_pwv[10] ) )
         connection.commit()
-        connection.close()  
+        connection.close()
     
     i = i + 1
 
