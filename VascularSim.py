@@ -24,11 +24,17 @@ ptr1 = 0
 hr_index = [1, 1]
 index = [1, 1]
 
-graph_optn = ["twelve","one","seven","nine"]
+graph_optn = ["twelve", "one", "seven", "nine"]
+
+baro_timer = 0
 
 rd_btn_val = 0
 #1, 2, 8, 20, 34, 47, 75, 42, 95, 104, 88
-stenosis_percent = {'1': None, '2': None, '8': None, '20':None, '34': None, '47': None, '75': None, '42': None, '95': None, '104': None, '88': None }
+stenosis_percent = {'1': None, '2': None, '8': None, '20': None, '34': None,
+                    '47': None, '75': None, '42': None, '95': None, '104': None, '88': None}
+
+baroreflex = None
+
 
 class Window(object):
 
@@ -36,7 +42,7 @@ class Window(object):
         super().__init__()
         self.MainWindow = MainWindow
         self.centralwidget = QWidget(MainWindow)
-        
+
         self.menubar = QMenuBar(self.MainWindow)
 
         # LAYOUTSs
@@ -57,7 +63,7 @@ class Window(object):
         self.graph4_optn = QRadioButton(self.centralwidget)
 
         # BUTTONS
-        self.playbtn = QPushButton(self.centralwidget) 
+        self.playbtn = QPushButton(self.centralwidget)
         self.stopbtn = QPushButton(self.centralwidget)
         self.btn = QPushButton(self.centralwidget)
         self.btn1 = QPushButton(self.centralwidget)
@@ -75,32 +81,35 @@ class Window(object):
         self.sbpbox = QLineEdit(self.centralwidget)
         self.dbpbox = QLineEdit(self.centralwidget)
         self.flowbox = QLineEdit(self.centralwidget)
-        
+
         # TIMER
         self.timer = QTimer()
 
         queries.query()
 
-        self.xdata =  deque(maxlen=2000)
-        
+        self.xdata = deque(maxlen=2000)
+
         self.setupUi()
 
     def setupUi(self):
-        
-        self.btn_list = [ self.btn, self.btn1, self.btn2, self.btn3, self.btn4, self.btn5, self.btn6, self.btn7, self.btn8, self.btn9 ] 
-        # MAINWINDOW 
+
+        self.btn_list = [self.btn, self.btn1, self.btn2, self.btn3,
+                         self.btn4, self.btn5, self.btn6, self.btn7, self.btn8, self.btn9]
+
+        # MAINWINDOW
         self.MainWindow.setObjectName("MainWindow")
         self.MainWindow.setWindowTitle("VascularSim")
         self.MainWindow.setWindowIcon(QIcon('./VascularSim.ico'))
-        self.MainWindow.resize(1200,650)
+        self.MainWindow.resize(1200, 650)
         self.MainWindow.setMaximumHeight(650)
         self.MainWindow.setMaximumWidth(1200)
-        
+
         # CENTRAL WIDGET
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
         self.MainWindow.setCentralWidget(self.centralwidget)
 
@@ -114,14 +123,14 @@ class Window(object):
                 for i in self.btn_list:
                     if i.styleSheet().split(" ")[1] == "rgb(0,150,255)":
                         i.setStyleSheet("background-color: rgb(60,60,60)")
-                                       
+
                 if btn_name == 0:
-                    self.btn.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    self.btn.setStyleSheet("background-color: rgb(0,150,255)")
                     graph_optn[1] = "one"
 
                     cursor.execute("SELECT PEP_1 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
-                    pep = rows[0]                    
+                    pep = rows[0]
                     self.dt_label_1.setText(str(pep))
 
                     cursor.execute("SELECT PWV_1 FROM HPN WHERE ID = 1")
@@ -131,7 +140,7 @@ class Window(object):
                     print('changed')
 
                 elif btn_name == 1:
-                    self.btn1.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    self.btn1.setStyleSheet("background-color: rgb(0,150,255)")
                     graph_optn[1] = "two"
 
                     cursor.execute("SELECT PEP_2 FROM HPN WHERE ID = 1")
@@ -145,7 +154,7 @@ class Window(object):
                     self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 2:
-                    self.btn2.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    self.btn2.setStyleSheet("background-color: rgb(0,150,255)")
                     graph_optn[1] = "three"
                     cursor.execute("SELECT PEP_3 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -158,7 +167,7 @@ class Window(object):
                     self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 3:
-                    self.btn3.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    self.btn3.setStyleSheet("background-color: rgb(0,150,255)")
                     graph_optn[1] = "four"
                     cursor.execute("SELECT PEP_4 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -171,7 +180,7 @@ class Window(object):
                     self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 4:
-                    self.btn4.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    self.btn4.setStyleSheet("background-color: rgb(0,150,255)")
                     graph_optn[1] = "five"
                     cursor.execute("SELECT PEP_5 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -184,7 +193,7 @@ class Window(object):
                     self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 5:
-                    self.btn5.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    self.btn5.setStyleSheet("background-color: rgb(0,150,255)")
                     graph_optn[1] = "six"
 
                     cursor.execute("SELECT PEP_6 FROM HPN WHERE ID = 1")
@@ -198,7 +207,7 @@ class Window(object):
                     self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 6:
-                    self.btn6.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    self.btn6.setStyleSheet("background-color: rgb(0,150,255)")
                     graph_optn[1] = "seven"
                     cursor.execute("SELECT PEP_7 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -211,7 +220,7 @@ class Window(object):
                     self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 7:
-                    self.btn7.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    self.btn7.setStyleSheet("background-color: rgb(0,150,255)")
                     graph_optn[1] = "eight"
                     cursor.execute("SELECT PEP_8 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -224,7 +233,7 @@ class Window(object):
                     self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 8:
-                    self.btn8.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    self.btn8.setStyleSheet("background-color: rgb(0,150,255)")
                     graph_optn[1] = "nine"
                     cursor.execute("SELECT PEP_9 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -237,7 +246,7 @@ class Window(object):
                     self.pwv_label_1.setText(str(pwv))
 
                 elif btn_name == 9:
-                    self.btn9.setStyleSheet("background-color: rgb(0,150,255)"   )
+                    self.btn9.setStyleSheet("background-color: rgb(0,150,255)")
                     graph_optn[1] = "ten"
                     cursor.execute("SELECT PEP_10 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -250,13 +259,13 @@ class Window(object):
                     self.pwv_label_1.setText(str(pwv))
 
             elif rd_btn_val == 2:
-                
+
                 for i in self.btn_list:
                     if i.styleSheet().split(" ")[1] == "rgb(252,2,248)":
                         i.setStyleSheet("background-color: rgb(60,60,60)")
-                
+
                 if btn_name == 0:
-                    self.btn.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    self.btn.setStyleSheet("background-color: rgb(252,2,248)")
                     graph_optn[rd_btn_val] = "one"
 
                     cursor.execute("SELECT PEP_1 FROM HPN WHERE ID = 1")
@@ -270,7 +279,7 @@ class Window(object):
                     self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 1:
-                    self.btn1.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    self.btn1.setStyleSheet("background-color: rgb(252,2,248)")
                     graph_optn[rd_btn_val] = "two"
 
                     cursor.execute("SELECT PEP_2 FROM HPN WHERE ID = 1")
@@ -284,7 +293,7 @@ class Window(object):
                     self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 2:
-                    self.btn2.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    self.btn2.setStyleSheet("background-color: rgb(252,2,248)")
                     graph_optn[rd_btn_val] = "three"
                     cursor.execute("SELECT PEP_3 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -295,9 +304,9 @@ class Window(object):
                     rows = cursor.fetchone()
                     pwv = rows[0]
                     self.pwv_label_2.setText(str(pwv))
-                
+
                 elif btn_name == 3:
-                    self.btn3.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    self.btn3.setStyleSheet("background-color: rgb(252,2,248)")
                     graph_optn[rd_btn_val] = "four"
                     cursor.execute("SELECT PEP_4 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -310,7 +319,7 @@ class Window(object):
                     self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 4:
-                    self.btn4.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    self.btn4.setStyleSheet("background-color: rgb(252,2,248)")
                     graph_optn[rd_btn_val] = "five"
                     cursor.execute("SELECT PEP_5 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -323,7 +332,7 @@ class Window(object):
                     self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 5:
-                    self.btn5.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    self.btn5.setStyleSheet("background-color: rgb(252,2,248)")
                     graph_optn[rd_btn_val] = "six"
                     cursor.execute("SELECT PEP_6 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -336,7 +345,7 @@ class Window(object):
                     self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 6:
-                    self.btn6.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    self.btn6.setStyleSheet("background-color: rgb(252,2,248)")
                     graph_optn[rd_btn_val] = "seven"
                     cursor.execute("SELECT PEP_7 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -349,7 +358,7 @@ class Window(object):
                     self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 7:
-                    self.btn7.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    self.btn7.setStyleSheet("background-color: rgb(252,2,248)")
                     graph_optn[rd_btn_val] = "eight"
                     cursor.execute("SELECT PEP_8 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -362,7 +371,7 @@ class Window(object):
                     self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 8:
-                    self.btn8.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    self.btn8.setStyleSheet("background-color: rgb(252,2,248)")
                     graph_optn[rd_btn_val] = "nine"
                     cursor.execute("SELECT PEP_9 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -375,7 +384,7 @@ class Window(object):
                     self.pwv_label_2.setText(str(pwv))
 
                 elif btn_name == 9:
-                    self.btn9.setStyleSheet("background-color: rgb(252,2,248)"   )
+                    self.btn9.setStyleSheet("background-color: rgb(252,2,248)")
                     graph_optn[rd_btn_val] = "ten"
                     cursor.execute("SELECT PEP_10 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -394,7 +403,7 @@ class Window(object):
                         i.setStyleSheet("background-color: rgb(60,60,60)")
 
                 if btn_name == 0:
-                    self.btn.setStyleSheet("background-color: rgb(200,200,0)" )
+                    self.btn.setStyleSheet("background-color: rgb(200,200,0)")
                     graph_optn[rd_btn_val] = "one"
 
                     cursor.execute("SELECT PEP_1 FROM HPN WHERE ID = 1")
@@ -408,7 +417,7 @@ class Window(object):
                     self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 1:
-                    self.btn1.setStyleSheet("background-color: rgb(200,200,0)" )
+                    self.btn1.setStyleSheet("background-color: rgb(200,200,0)")
                     graph_optn[rd_btn_val] = "two"
                     cursor.execute("SELECT PEP_2 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -421,7 +430,7 @@ class Window(object):
                     self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 2:
-                    self.btn2.setStyleSheet("background-color: rgb(200,200,0)" )
+                    self.btn2.setStyleSheet("background-color: rgb(200,200,0)")
                     graph_optn[rd_btn_val] = "three"
                     cursor.execute("SELECT PEP_3 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -434,7 +443,7 @@ class Window(object):
                     self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 3:
-                    self.btn3.setStyleSheet("background-color: rgb(200,200,0)" )
+                    self.btn3.setStyleSheet("background-color: rgb(200,200,0)")
                     graph_optn[rd_btn_val] = "four"
                     cursor.execute("SELECT PEP_4 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -447,7 +456,7 @@ class Window(object):
                     self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 4:
-                    self.btn4.setStyleSheet("background-color: rgb(200,200,0)" )
+                    self.btn4.setStyleSheet("background-color: rgb(200,200,0)")
                     graph_optn[rd_btn_val] = "five"
                     cursor.execute("SELECT PEP_5 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -460,7 +469,7 @@ class Window(object):
                     self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 5:
-                    self.btn5.setStyleSheet("background-color: rgb(200,200,0)" )
+                    self.btn5.setStyleSheet("background-color: rgb(200,200,0)")
                     graph_optn[rd_btn_val] = "six"
                     cursor.execute("SELECT PEP_6 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -473,7 +482,7 @@ class Window(object):
                     self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 6:
-                    self.btn6.setStyleSheet("background-color: rgb(200,200,0)" )
+                    self.btn6.setStyleSheet("background-color: rgb(200,200,0)")
                     graph_optn[rd_btn_val] = "seven"
                     cursor.execute("SELECT PEP_7 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -485,7 +494,7 @@ class Window(object):
                     self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 7:
-                    self.btn7.setStyleSheet("background-color: rgb(200,200,0)" )
+                    self.btn7.setStyleSheet("background-color: rgb(200,200,0)")
                     graph_optn[rd_btn_val] = "eight"
                     cursor.execute("SELECT PEP_8 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -497,7 +506,7 @@ class Window(object):
                     self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 8:
-                    self.btn8.setStyleSheet("background-color: rgb(200,200,0)" )
+                    self.btn8.setStyleSheet("background-color: rgb(200,200,0)")
                     graph_optn[rd_btn_val] = "nine"
                     cursor.execute("SELECT PEP_9 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -509,7 +518,7 @@ class Window(object):
                     self.pwv_label_3.setText(str(pwv))
 
                 elif btn_name == 9:
-                    self.btn9.setStyleSheet("background-color: rgb(200,200,0)" )
+                    self.btn9.setStyleSheet("background-color: rgb(200,200,0)")
                     graph_optn[rd_btn_val] = "ten"
                     cursor.execute("SELECT PEP_10 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
@@ -531,84 +540,86 @@ class Window(object):
             obj.setMaximumSize(QSize(207, 1677))
 
         sizepolicy(self.btn)
-        self.btn.clicked.connect( partial(gup, 0) )
+        self.btn.clicked.connect(partial(gup, 0))
         self.mainlayout.addWidget(self.btn, 2, 0, 1, 1)
-        
+
         sizepolicy(self.btn1)
-        self.btn1.clicked.connect( partial(gup, 1) )         
+        self.btn1.clicked.connect(partial(gup, 1))
         self.mainlayout.addWidget(self.btn1, 3, 0, 1, 1)
 
         sizepolicy(self.btn2)
-        self.btn2.clicked.connect( partial(gup, 2) )
+        self.btn2.clicked.connect(partial(gup, 2))
         self.mainlayout.addWidget(self.btn2, 4, 0, 1, 1)
 
         sizepolicy(self.btn3)
-        self.btn3.clicked.connect( partial(gup, 3) )
+        self.btn3.clicked.connect(partial(gup, 3))
         self.mainlayout.addWidget(self.btn3, 5, 0, 1, 1)
 
         sizepolicy(self.btn4)
-        self.btn4.clicked.connect( partial(gup, 4) ) 
+        self.btn4.clicked.connect(partial(gup, 4))
         self.mainlayout.addWidget(self.btn4, 6, 0, 1, 1)
 
         sizepolicy(self.btn5)
-        self.btn5.clicked.connect( partial(gup, 5) ) 
+        self.btn5.clicked.connect(partial(gup, 5))
         self.mainlayout.addWidget(self.btn5, 7, 0, 1, 1)
 
         sizepolicy(self.btn6)
-        self.btn6.clicked.connect( partial(gup, 6) ) 
+        self.btn6.clicked.connect(partial(gup, 6))
         self.mainlayout.addWidget(self.btn6, 8, 0, 1, 1)
-        
+
         sizepolicy(self.btn7)
-        self.btn7.clicked.connect( partial(gup, 7) ) 
+        self.btn7.clicked.connect(partial(gup, 7))
         self.mainlayout.addWidget(self.btn7, 9, 0, 1, 1)
 
         sizepolicy(self.btn8)
-        self.btn8.clicked.connect( partial(gup, 8) )
+        self.btn8.clicked.connect(partial(gup, 8))
         self.mainlayout.addWidget(self.btn8, 10, 0, 1, 1)
 
         sizepolicy(self.btn9)
-        self.btn9.clicked.connect( partial(gup, 9) ) 
+        self.btn9.clicked.connect(partial(gup, 9))
         self.mainlayout.addWidget(self.btn9, 11, 0, 1, 1)
 
         # CENTER
-        
+
         # --------PLAY BUTTON
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.playbtn.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.playbtn.sizePolicy().hasHeightForWidth())
         self.playbtn.setSizePolicy(sizePolicy)
         self.playbtn.clicked.connect(self.run)
-        self.mainlayout.addWidget(self.playbtn, 0,1,1,1)
+        self.mainlayout.addWidget(self.playbtn, 0, 1, 1, 1)
 
         # --------STOP BUTTON
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.stopbtn.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.stopbtn.sizePolicy().hasHeightForWidth())
         self.stopbtn.setSizePolicy(sizePolicy)
         self.stopbtn.clicked.connect(self.stop)
-        self.mainlayout.addWidget(self.stopbtn, 0,2,1,1)
+        self.mainlayout.addWidget(self.stopbtn, 0, 2, 1, 1)
 
         # ______________________________GRAPH_WIDGET_____________________________
-        
+
         def set_Graph_optn(obj):
             obj.setLabel('bottom', text='(ms)')
             obj.setDownsampling(mode='peak')
-            #obj.setClipToView(True)
+            # obj.setClipToView(True)
             obj.getAxis('bottom').setScale(2)
             obj.getAxis('bottom').setTickSpacing(1000, 10)
             #obj.showGrid(x=True, y=True, alpha=0.3)
             obj.setRange(xRange=[0, 3000])
             obj.hideAxis('left')
-        
-        pg.setConfigOptions(antialias= True, background=QColor(30,30,30,255))
+
+        pg.setConfigOptions(antialias=True, background=QColor(30, 30, 30, 255))
         plotwin = pg.GraphicsLayoutWidget(show=True)
         plotwin.setContentsMargins(0, 0, 0, 0)
 
         # FIRST PLOT
         self.p1 = plotwin.addPlot()
-       
+
         set_Graph_optn(self.p1)
         self.curve1 = self.p1.plot()
         self.curve1.setPen('g')  # Green pen
@@ -640,7 +651,7 @@ class Window(object):
         self.p1.hideAxis('bottom')
         self.p3.hideAxis('bottom')
         self.p4.hideAxis('bottom')
-        
+
         self.mainlayout.addWidget(plotwin, 2, 1, 10, 2)
 
         def radiobtnval(type):
@@ -653,25 +664,25 @@ class Window(object):
                 rd_btn_val = 2
             else:
                 rd_btn_val = 3
-        
+
         self.graph1_optn.setText("GRAPH 1")
-        self.graph_optn_layout.addWidget(self.graph1_optn, 1, 1 )
-        self.graph1_optn.clicked.connect(partial(radiobtnval, "r1" ))
+        self.graph_optn_layout.addWidget(self.graph1_optn, 1, 1)
+        self.graph1_optn.clicked.connect(partial(radiobtnval, "r1"))
 
         self.graph2_optn.setText("GRAPH 2")
         self.graph_optn_layout.addWidget(self.graph2_optn, 1, 2)
-        self.graph2_optn.clicked.connect(partial(radiobtnval, "r2" ))
+        self.graph2_optn.clicked.connect(partial(radiobtnval, "r2"))
 
         self.graph3_optn.setText("GRAPH 3")
         self.graph_optn_layout.addWidget(self.graph3_optn, 1, 3)
-        self.graph3_optn.clicked.connect(partial(radiobtnval, "r3" ))
+        self.graph3_optn.clicked.connect(partial(radiobtnval, "r3"))
 
         self.graph4_optn.setText("GRAPH 4")
         self.graph_optn_layout.addWidget(self.graph4_optn, 1, 4)
-        self.graph4_optn.clicked.connect(partial(radiobtnval, "r4" ))
+        self.graph4_optn.clicked.connect(partial(radiobtnval, "r4"))
 
         self.mainlayout.addLayout(self.graph_optn_layout, 1, 1, 1, 2)
-        
+
         # ________________________________GRLAYOUT_______________________________________
         inner_glayout = QGridLayout()
         self.grlayout.addLayout(inner_glayout, 1, 0, 1, 1)
@@ -680,12 +691,13 @@ class Window(object):
             global index
             connection = sql.connect("vascularsim.db")
             cursor = connection.cursor()
-            cursor.execute('UPDATE HPN SET HR = ' + self.hrbox.text() + ', PF = ' +  self.flowbox.text() + ' WHERE id = 1')
+            cursor.execute('UPDATE HPN SET HR = ' + self.hrbox.text() +
+                           ', PF = ' + self.flowbox.text() + ' WHERE id = 1')
 
             if self.process_exists('main.exe'):
                 os.system('taskkill /f /im main.exe')
-            
-            subprocess.Popen("./main/main.exe",shell=False,close_fds=False)
+
+            subprocess.Popen("./main/main.exe", shell=False, close_fds=False)
             index = [1, 1]
 
             connection.commit()
@@ -695,8 +707,8 @@ class Window(object):
         self.hrlabel.setMaximumHeight(50)
         self.hrbox.setMaxLength(3)
         self.hrbox.setMaximumWidth(150)
-        self.hrbox.setText("60")
-        
+        self.hrbox.setText("72")
+
         self.hrbox.returnPressed.connect(HR_update)
         inner_glayout.addWidget(self.hrlabel, 0, 0)
         inner_glayout.addWidget(self.hrbox, 1, 0)
@@ -704,11 +716,12 @@ class Window(object):
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Ignored)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.sbplabel.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.sbplabel.sizePolicy().hasHeightForWidth())
         self.sbplabel.setSizePolicy(sizePolicy)
         self.sbplabel.setMaximumWidth(150)
         self.sbplabel.setMinimumHeight(30)
-        self.grlayout.addWidget(self.sbplabel, 2, 0, 1, 1 )
+        self.grlayout.addWidget(self.sbplabel, 2, 0, 1, 1)
 
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Ignored)
         sizePolicy.setHorizontalStretch(0)
@@ -729,7 +742,7 @@ class Window(object):
         self.flowlabel.setMaximumHeight(30)
         self.flowlabel.setMaximumWidth(150)
         self.grlayout.addWidget(self.flowlabel, 4, 0, 1, 1)
-        
+
         self.flowbox.setMaximumWidth(150)
         self.flowbox.setMaxLength(5)
         self.flowbox.returnPressed.connect(HR_update)
@@ -743,14 +756,14 @@ class Window(object):
 
         dt_layout = QGridLayout()
         dt_hlayout = QVBoxLayout()
-        
-        self.dt_label =QLabel(self.centralwidget)
+
+        self.dt_label = QLabel(self.centralwidget)
         self.dt_label.setText("Pre-Ejection Period")
-        self.dt_label_1 =QLabel(self.centralwidget)
+        self.dt_label_1 = QLabel(self.centralwidget)
         self.dt_label_1.setText("0")
-        self.dt_label_2 =QLabel(self.centralwidget)
+        self.dt_label_2 = QLabel(self.centralwidget)
         self.dt_label_2.setText("0")
-        self.dt_label_3 =QLabel(self.centralwidget)
+        self.dt_label_3 = QLabel(self.centralwidget)
         self.dt_label_3.setText("0")
 
         dt_layout.addWidget(self.dt_label, 0, 0)
@@ -778,7 +791,7 @@ class Window(object):
         pwv_hlayout.addWidget(self.pwv_label_1)
         pwv_hlayout.addWidget(self.pwv_label_2)
         pwv_hlayout.addWidget(self.pwv_label_3)
-        
+
         self.gridLayout_3.addLayout(pwv_layout, 1, 1, 1, 1)
 
         self.label_8 = QLabel(self.centralwidget)
@@ -791,12 +804,13 @@ class Window(object):
         self.gridLayout_3.addWidget(self.label_10, 4, 0, 1, 1)
 
         self.grlayout.addLayout(self.gridLayout_3, 6, 0, 1, 2)
-        
+
         self.grid_patient_profile = QGridLayout()
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.sbplabel.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.sbplabel.sizePolicy().hasHeightForWidth())
 
         self.patprof = QLabel(self.centralwidget)
         self.grid_patient_profile.addWidget(self.patprof, 1, 0, 1, 1)
@@ -806,13 +820,14 @@ class Window(object):
 
         self.experimentlbl = QLabel(self.centralwidget)
         self.grid_patient_profile.addWidget(self.experimentlbl, 3, 0, 1, 1)
-        
+
         self.valpatprof = QLabel(self.centralwidget)
         self.grid_patient_profile.addWidget(self.valpatprof, 1, 1, 1, 1)
-        
+
         self.Valstenosis_lbl_top = QLabel(self.centralwidget)
-        self.grid_patient_profile.addWidget(self.Valstenosis_lbl_top, 2, 1, 1, 1)
-        
+        self.grid_patient_profile.addWidget(
+            self.Valstenosis_lbl_top, 2, 1, 1, 1)
+
         self.Valexperimentlbl = QLabel(self.centralwidget)
         self.grid_patient_profile.addWidget(self.Valexperimentlbl, 3, 1, 1, 1)
         self.grlayout.addLayout(self.grid_patient_profile, 1, 1, 1, 1)
@@ -824,24 +839,25 @@ class Window(object):
         self.Valstenosis_lbl_top.setSizePolicy(sizePolicy)
         self.Valexperimentlbl.setSizePolicy(sizePolicy)
 
-        self.mainlayout.addLayout(self.grlayout, 0,3,11,1)
+        self.mainlayout.addLayout(self.grlayout, 0, 3, 11, 1)
 
-        #_________________________PARAMETER LAYOUT__________________________________
+        # _________________________PARAMETER LAYOUT__________________________________
         self.parameter_layout = QGridLayout()
 
         self.main_label = QLabel()
         self.main_label.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         self.main_label.setStyleSheet("color:white;")
-        self.main_label.setText("STENOSIS")
+        self.main_label.setText("VASOCONSTRICTION")
 
         self.parameters_tab_widget = QTabWidget()
-        self.parameters_tab_widget.setStyleSheet("background-color: rgb(30,30,30);")
+        self.parameters_tab_widget.setStyleSheet(
+            "background-color: rgb(30,30,30);")
 
         # STENOSIS TAB
         self.stenosis_tab = QWidget()
-        self.stenosis_tab_layout = QGridLayout() 
+        self.stenosis_tab_layout = QGridLayout()
 
-        self.l1 = QLabel("Ascending Aorta") 
+        self.l1 = QLabel("Ascending Aorta")
         self.l2 = QLabel()
         self.l3 = QLabel()
         self.l4 = QLabel()
@@ -866,17 +882,18 @@ class Window(object):
         self.edit11 = QLineEdit("0")
 
         stenosis_ok_btn = QPushButton("OK")
-        stenosis_ok_btn.setStyleSheet("background-color: rgb(60,60,60); color:white")
+        stenosis_ok_btn.setStyleSheet(
+            "background-color: rgb(60,60,60); color:white")
 
-        self.edit1.setStyleSheet("color:white;") 
-        self.edit2.setStyleSheet("color:white;") 
-        self.edit3.setStyleSheet("color:white;") 
-        self.edit4.setStyleSheet("color:white;") 
-        self.edit5.setStyleSheet("color:white;") 
-        self.edit6.setStyleSheet("color:white;") 
-        self.edit7.setStyleSheet("color:white;") 
-        self.edit8.setStyleSheet("color:white;") 
-        self.edit9.setStyleSheet("color:white;") 
+        self.edit1.setStyleSheet("color:white;")
+        self.edit2.setStyleSheet("color:white;")
+        self.edit3.setStyleSheet("color:white;")
+        self.edit4.setStyleSheet("color:white;")
+        self.edit5.setStyleSheet("color:white;")
+        self.edit6.setStyleSheet("color:white;")
+        self.edit7.setStyleSheet("color:white;")
+        self.edit8.setStyleSheet("color:white;")
+        self.edit9.setStyleSheet("color:white;")
         self.edit10.setStyleSheet("color:white;")
         self.edit11.setStyleSheet("color:white;")
 
@@ -885,17 +902,17 @@ class Window(object):
         self.l2.setStyleSheet("color:white;")
         self.l3.setText("Subclavian")
         self.l3.setStyleSheet("color:white;")
-        self.l4.setText("Carotid") 
+        self.l4.setText("Carotid")
         self.l4.setStyleSheet("color:white;")
-        self.l5.setText("Thoracic") 
+        self.l5.setText("Thoracic")
         self.l5.setStyleSheet("color:white;")
-        self.l6.setText("Cereberal") 
+        self.l6.setText("Cereberal")
         self.l6.setStyleSheet("color:white;")
-        self.l7.setText("Abdominal") 
+        self.l7.setText("Abdominal")
         self.l7.setStyleSheet("color:white;")
-        self.l8.setText("Brachial") 
+        self.l8.setText("Brachial")
         self.l8.setStyleSheet("color:white;")
-        self.l9.setText("Ulnar") 
+        self.l9.setText("Ulnar")
         self.l9.setStyleSheet("color:white;")
         self.l10.setText("Femoral")
         self.l10.setStyleSheet("color:white;")
@@ -912,7 +929,7 @@ class Window(object):
         self.stenosis_tab_layout.addWidget(self.l8, 7, 0)
         self.stenosis_tab_layout.addWidget(self.l9, 8, 0)
         self.stenosis_tab_layout.addWidget(self.l10, 9, 0)
-        self.stenosis_tab_layout.addWidget(self.l11, 10, 0) 
+        self.stenosis_tab_layout.addWidget(self.l11, 10, 0)
 
         self.stenosis_tab_layout.addWidget(self.edit1, 0, 1)
         self.stenosis_tab_layout.addWidget(self.edit2, 1, 1)
@@ -946,34 +963,38 @@ class Window(object):
             val9 = int(self.edit9.text())
             val10 = int(self.edit10.text())
             val11 = int(self.edit11.text())
-            
+
             if val1 == 0 or val2 == 0 or val3 == 0 or val4 == 0 or val5 == 0 or val6 == 0 or val7 == 0 or val8 == 0 or val9 == 0 or val10 == 0 or val11 == 0:
-            #if val1 == 0 and val2 == 0 and val3 == 0 and val4 == 0 and val5 == 0 and val6 == 0 and val7 == 0 and val8 == 0 and val9 == 0 and val10 == 0 and val11 == 0:
-                cursor.execute('UPDATE HPN SET "STENOSIS_FLAG" = 0 WHERE id = 1')
-            else: 
-                cursor.execute('UPDATE HPN SET "STENOSIS_FLAG" = 1 WHERE id = 1')
+                # if val1 == 0 and val2 == 0 and val3 == 0 and val4 == 0 and val5 == 0 and val6 == 0 and val7 == 0 and val8 == 0 and val9 == 0 and val10 == 0 and val11 == 0:
+                cursor.execute(
+                    'UPDATE HPN SET "STENOSIS_FLAG" = 0 WHERE id = 1')
+            else:
+                cursor.execute(
+                    'UPDATE HPN SET "STENOSIS_FLAG" = 1 WHERE id = 1')
             connection.commit()
             connection.close()
 
-            stenosis_percent = {'1': val1, '2': val2, '8': val3, '20': val4, '34': val5, '47': val6, '75': val7, '42': val8, '95': val9, '104': val10, '88': val11 }
+            stenosis_percent = {'1': val1, '2': val2, '8': val3, '20': val4, '34': val5,
+                                '47': val6, '75': val7, '42': val8, '95': val9, '104': val10, '88': val11}
             stenosis(0.04, 1.05, 0.6, **stenosis_percent)
 
-            #print(stenosis_percent)
-        
+            # print(stenosis_percent)
+
         stenosis_ok_btn.clicked.connect(stenosis_update)
 
         # TEST - 2 TAB
         self.parameters_tab_2 = QWidget()
         gif_label = QLabel()
-        
+
         # ADD WIDGET TO TAB WIDGET
-        self.parameters_tab_widget.addTab(self.stenosis_tab, "STENOSIS")
-        self.parameters_tab_widget.addTab(self.parameters_tab_2, "TEST-2")     
-        
+        self.parameters_tab_widget.addTab(
+            self.stenosis_tab, "VASOCONSTRICTION")
+        self.parameters_tab_widget.addTab(self.parameters_tab_2, "TEST-2")
+
         # ADD WIDGETS TO PARAMETERS LAYOUT
         self.parameter_layout.addWidget(self.main_label, 0, 0, 1, 1)
-        self.parameter_layout.addWidget(self.parameters_tab_widget, 1, 0, 1, 2 )
-        
+        self.parameter_layout.addWidget(self.parameters_tab_widget, 1, 0, 1, 2)
+
         # EFFECT OF POSTURE WIDGET
         self.effect_of_posture = QWidget()
         self.eof_layout = QGridLayout()
@@ -982,7 +1003,7 @@ class Window(object):
         eof_label = QLabel()
         eof_label_1 = QLabel()
 
-        eof_label.setMinimumSize(200,200)
+        eof_label.setMinimumSize(200, 200)
         eof_label.setStyleSheet("image:url(./Resources/2.jpg);")
 
         eof_label_1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -997,46 +1018,48 @@ class Window(object):
         self.effect_of_posture.setVisible(False)
 
         def tilt_off():
-            self.main_label.setVisible(False)
+            global baroreflex
+
+            baroreflex = 0
+            # self.main_label.setVisible(False)
             eof_label.setStyleSheet("image:url(./Resources/2.jpg);")
+            # if self.process_exists('baro_main.exe'):
+            #    os.system('taskkill /f /im main.exe')
+            #    self.timer.timeout.connect(self.update)
+            #    #self.timer.start(speed)
+            #    self.alert(" SIMULATING...    ")
+            # subprocess.Popen("./main/main.exe",shell=False,close_fds=False)
 
-            if self.process_exists('baro_main.exe'):
-                os.system('taskkill /f /im main.exe')
-                self.timer.timeout.connect(self.update)
-                #self.timer.start(speed)
-                self.alert(" SIMULATING...    ")
-
-            subprocess.Popen("./main/main.exe",shell=False,close_fds=False)
-        
         def tilt_on():
-            self.main_label.setVisible(False)
-            eof_label.setStyleSheet("image:url(./Resources/3.png);")
+            global baroreflex
 
-            if self.process_exists('main.exe'):
-                os.system('taskkill /f /im main.exe')
-                self.timer.timeout.connect(self.update)
-                #self.timer.start(speed)
-                self.alert(" SIMULATING...  ")
-            subprocess.Popen("./baro_main/baro_main.exe",shell=False,close_fds=False)
-            
+            baroreflex = 1
+            # self.main_label.setVisible(False)
+            eof_label.setStyleSheet("image:url(./Resources/3.png);")
+            # if self.process_exists('main.exe'):
+            #    os.system('taskkill /f /im main.exe')
+            #    self.timer.timeout.connect(self.update)
+            #    #self.timer.start(speed)
+            #    self.alert(" SIMULATING...  ")
+            # subprocess.Popen("./baro_main/baro_main.exe",shell=False,close_fds=False)
+
         eof_btn_1.clicked.connect(tilt_off)
         eof_btn_2.clicked.connect(tilt_on)
 
-        self.parameter_layout.addWidget(self.effect_of_posture, 1, 0, 1, 2 )
-        
+        self.parameter_layout.addWidget(self.effect_of_posture, 1, 0, 1, 2)
 
         # ADD PARAMETERS WIDGET TO MAIN LAYOUT
-        self.mainlayout.addLayout(self.parameter_layout, 0,4,12,1)
-                
+        self.mainlayout.addLayout(self.parameter_layout, 0, 4, 12, 1)
+
         # ______________________________MENUBAR _____________________________
-        
+
         # ============MENU BAR
         self.MainWindow.setMenuBar(self.menubar)
 
         # ============MENU FILE
         self.menuFile = QMenu(self.menubar)
 
-        self.actionCreate_profile =QAction(self.MainWindow)
+        self.actionCreate_profile = QAction(self.MainWindow)
         self.actionSettings = QAction(self.MainWindow)
         self.actionQuit = QAction(self.MainWindow)
         self.actionReset_all = QAction(self.MainWindow)
@@ -1060,16 +1083,17 @@ class Window(object):
             self.main_label.setVisible(True)
             self.parameters_tab_widget.setVisible(True)
             self.effect_of_posture.setVisible(False)
-       
-        self.menuSimulation = QMenu(self.menubar)      
-        
+
+        self.menuSimulation = QMenu(self.menubar)
+
         self.menuMedical_Experiments = QMenu(self.menuSimulation)
         self.actionEffect_of_POSTURE = QAction(self.MainWindow)
         self.actionEffect_of_muscular_exercise = QAction(self.MainWindow)
         self.Action_Effect_of_Stenosis = QAction(self.MainWindow)
 
         self.menuMedical_Experiments.addAction(self.actionEffect_of_POSTURE)
-        self.menuMedical_Experiments.addAction(self.actionEffect_of_muscular_exercise)
+        self.menuMedical_Experiments.addAction(
+            self.actionEffect_of_muscular_exercise)
         self.menuMedical_Experiments.addAction(self.Action_Effect_of_Stenosis)
 
         self.actionHuman_arterial_tree = QAction(self.MainWindow)
@@ -1079,26 +1103,25 @@ class Window(object):
         self.menuSimulation.addSeparator()
         self.menuSimulation.addAction(self.actionFoetal_Circulation)
         self.menuSimulation.addSeparator()
-        self.menuSimulation.addAction(self.menuMedical_Experiments.menuAction())
+        self.menuSimulation.addAction(
+            self.menuMedical_Experiments.menuAction())
 
-        self.actionEffect_of_POSTURE.triggered.connect(swap_tab)#.clicked.connect(swap_tab)
+        self.actionEffect_of_POSTURE.triggered.connect(
+            swap_tab)  # .clicked.connect(swap_tab)
         self.Action_Effect_of_Stenosis.setText("Effect of Stenosis")
         self.Action_Effect_of_Stenosis.triggered.connect(stenosis_tab)
-
 
         # ============MENU GRAPH
         self.menuGraph = QMenu(self.menubar)
 
         self.actionGraph_options = QAction(self.MainWindow)
         self.actionClear_all = QAction(self.MainWindow)
-        
 
         self.menuGraph.addAction(self.actionGraph_options)
         self.menuGraph.addAction(self.actionClear_all)
 
         self.actionClear_graph = QAction(self.MainWindow)
         self.actionReset = QAction(self.MainWindow)
-
 
         # ============MENU HELP
         self.menuHelp = QMenu(self.menubar)
@@ -1109,22 +1132,19 @@ class Window(object):
         self.actionAbout = QAction(self.MainWindow)
         self.actionDevelopers = QAction(self.MainWindow)
 
-
         self.menuHelp.addAction(self.actionDocumentation)
         self.menuHelp.addAction(self.actionUser_manual)
         self.menuHelp.addAction(self.actionAbout)
         self.menuHelp.addAction(self.actionDevelopers)
-
 
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSimulation.menuAction())
         self.menubar.addAction(self.menuGraph.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
-        
         for i in range(2000):
             self.xdata.append(i+1)
-        
+
         self.stylesheet()
         self.text()
 
@@ -1153,41 +1173,42 @@ class Window(object):
         self.flowbox.setText("450.0")
 
         self.patprof.setText("Patient Profile")
-        self.stenosis_lbl_top.setText("stenosis")
+        self.stenosis_lbl_top.setText("VASOCONSTRICTION")
         self.experimentlbl.setText("Experiment")
 
-        self.menuFile.setTitle( "File")
-        self.menuSimulation.setTitle( "Simulation")
-        self.menuMedical_Experiments.setTitle( "Medical Experiments")
-        self.menuGraph.setTitle( "Graph")
-       
-        self.menuHelp.setTitle( "Help")
-        self.actionCreate_profile.setText( "Create profile")
-        self.actionSettings.setText( "Settings")
-        self.actionQuit.setText( "Quit")
-        self.actionHuman_arterial_tree.setText( "Human arterial tree")
-        self.actionFoetal_Circulation.setText( "Fetal Circulation")
-        self.actionEffect_of_POSTURE.setText( "Effect of Posture")
-        self.actionEffect_of_muscular_exercise.setText( "Effect of muscular exercise")
-        self.actionClear_graph.setText( "Clear")
-        self.actionReset.setText( "Reset")
-        self.actionGraph_options.setText( "Graph options")
+        self.menuFile.setTitle("File")
+        self.menuSimulation.setTitle("Simulation")
+        self.menuMedical_Experiments.setTitle("Medical Experiments")
+        self.menuGraph.setTitle("Graph")
 
-        self.actionClear_all.setText( "Clear all")
-        self.actionReset_all.setText( "Reset")
+        self.menuHelp.setTitle("Help")
+        self.actionCreate_profile.setText("Create profile")
+        self.actionSettings.setText("Settings")
+        self.actionQuit.setText("Quit")
+        self.actionHuman_arterial_tree.setText("Human arterial tree")
+        self.actionFoetal_Circulation.setText("Fetal Circulation")
+        self.actionEffect_of_POSTURE.setText("Effect of Posture")
+        self.actionEffect_of_muscular_exercise.setText(
+            "Effect of muscular exercise")
+        self.actionClear_graph.setText("Clear")
+        self.actionReset.setText("Reset")
+        self.actionGraph_options.setText("Graph options")
 
+        self.actionClear_all.setText("Clear all")
+        self.actionReset_all.setText("Reset")
 
-        self.actionDocumentation.setText( "Documentation")
-        self.actionUser_manual.setText( "User manual")
-        self.actionAbout.setText( "About")
-        self.actionDevelopers.setText( "Developers")
+        self.actionDocumentation.setText("Documentation")
+        self.actionUser_manual.setText("User manual")
+        self.actionAbout.setText("About")
+        self.actionDevelopers.setText("Developers")
 
     def stylesheet(self):
 
         self.MainWindow.setStyleSheet(""" QMenuBar {  spacing: 4px;  } 
                                         QMainWindow{ background-color:rgb(30,30,30);   } """)
 
-        self.menubar.setStyleSheet(" background-color: rgb(60,60,60); color: rgb(240,240,240); selection-color: white; selection-background-color: rgb(9,71,113); ")
+        self.menubar.setStyleSheet(
+            " background-color: rgb(60,60,60); color: rgb(240,240,240); selection-color: white; selection-background-color: rgb(9,71,113); ")
 
         self.centralwidget.setStyleSheet(""" 
             QPushButton{  background-color: rgb(60,60,60); color: rgb(240,240,240);  font: bold 13px; }
@@ -1215,62 +1236,76 @@ class Window(object):
         self.btn9.setStyleSheet("background-color: rgb(60,60,60)")
 
         self.hrlabel.setStyleSheet("background-color: rgb(30,30,30); ")
-        self.hrbox.setStyleSheet("background-color: rgb(30,30,30); border: 0px solid white ; color: rgb(6, 247, 0); font: 50px;")
-        
-        self.sbplabel.setStyleSheet("background-color: rgb(30,30,30); height: 10")
-        self.sbpbox.setStyleSheet("background-color: rgb(30,30,30); border: 0px ; color: rgb(252, 2, 248); height: 50; font: 50px;")
+        self.hrbox.setStyleSheet(
+            "background-color: rgb(30,30,30); border: 0px solid white ; color: rgb(6, 247, 0); font: 50px;")
 
-        self.dbplabel.setStyleSheet("background-color: rgb(30,30,30); height: 10")
-        self.dbpbox.setStyleSheet("background-color: rgb(30,30,30); border: 0px ; color: rgb(252, 2, 248); height: 50; font: 50px;")
+        self.sbplabel.setStyleSheet(
+            "background-color: rgb(30,30,30); height: 10")
+        self.sbpbox.setStyleSheet(
+            "background-color: rgb(30,30,30); border: 0px ; color: rgb(252, 2, 248); height: 50; font: 50px;")
 
-        self.flowlabel.setStyleSheet("background-color: rgb(30,30,30); height: 10")
-        self.flowbox.setStyleSheet("background-color: rgb(30,30,30); border: 0px ; color: rgb(255, 255, 255); height: 50; font: 49px;")
+        self.dbplabel.setStyleSheet(
+            "background-color: rgb(30,30,30); height: 10")
+        self.dbpbox.setStyleSheet(
+            "background-color: rgb(30,30,30); border: 0px ; color: rgb(252, 2, 248); height: 50; font: 50px;")
 
-        self.patprof.setStyleSheet("background-color: rgb(30,30,30); height: 10; color: rgb(6, 247, 0);")
+        self.flowlabel.setStyleSheet(
+            "background-color: rgb(30,30,30); height: 10")
+        self.flowbox.setStyleSheet(
+            "background-color: rgb(30,30,30); border: 0px ; color: rgb(255, 255, 255); height: 50; font: 49px;")
+
+        self.patprof.setStyleSheet(
+            "background-color: rgb(30,30,30); height: 10; color: rgb(6, 247, 0);")
         self.valpatprof.setStyleSheet("image:url(./img/off.png);")
 
-        self.experimentlbl.setStyleSheet("background-color: rgb(30,30,30); height: 10; color: rgb(6, 247, 0);")
+        self.experimentlbl.setStyleSheet(
+            "background-color: rgb(30,30,30); height: 10; color: rgb(6, 247, 0);")
         self.Valexperimentlbl.setStyleSheet("image:url(./img/off.png);")
 
-        self.stenosis_lbl_top.setStyleSheet("background-color: rgb(30,30,30); height: 10; color: rgb(6, 247, 0);")
+        self.stenosis_lbl_top.setStyleSheet(
+            "background-color: rgb(30,30,30); height: 10; color: rgb(6, 247, 0);")
         self.Valstenosis_lbl_top.setStyleSheet("image:url(./img/off.png);")
 
     def update(self):
-        global data1, data2, data3, data4, ptr1, index, graph_optn
-        
+        global data1, data2, data3, data4, ptr1, index, graph_optn, baroreflex, baro_timer
+
         def retrieve():
             connection = sql.connect("vascularsim.db")
             cursor = connection.cursor()
-            
-            cursor.execute(' SELECT ' + graph_optn[0] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 5 ) )
+
+            cursor.execute(' SELECT ' + graph_optn[0] + ' FROM BUFFER WHERE ID BETWEEN ' + str(
+                index[0]) + ' AND ' + str(index[1] * 5))
             rows = cursor.fetchall()
             zero = [item for t in rows for item in t]
-            
-            cursor.execute(' SELECT ' + graph_optn[1] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 5 ) )
+
+            cursor.execute(' SELECT ' + graph_optn[1] + ' FROM BUFFER WHERE ID BETWEEN ' + str(
+                index[0]) + ' AND ' + str(index[1] * 5))
             rows = cursor.fetchall()
             one = [item for t in rows for item in t]
-            
-            cursor.execute(' SELECT ' + graph_optn[2] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 5 ) )
+
+            cursor.execute(' SELECT ' + graph_optn[2] + ' FROM BUFFER WHERE ID BETWEEN ' + str(
+                index[0]) + ' AND ' + str(index[1] * 5))
             rows = cursor.fetchall()
             two = [item for t in rows for item in t]
 
-            cursor.execute(' SELECT ' + graph_optn[3] + ' FROM BUFFER WHERE ID BETWEEN ' + str(index[0]) + ' AND ' + str(index[1] * 5 ) )
+            cursor.execute(' SELECT ' + graph_optn[3] + ' FROM BUFFER WHERE ID BETWEEN ' + str(
+                index[0]) + ' AND ' + str(index[1] * 5))
             rows = cursor.fetchall()
             three = [item for t in rows for item in t]
 
             connection.close()
             index[0] = index[0] + 5
-        
+
             return one, zero, two, three
-        
+
         connection = sql.connect("vascularsim.db")
         cursor = connection.cursor()
         cursor.execute("SELECT FLAG FROM HPN WHERE ID = 1")
         flag = cursor.fetchone()
         connection.close()
-        
+
         if flag[0] == 1:
-            
+
             if index[1] == 1600:
                 index[0] = 1
                 index[1] = 1
@@ -1293,20 +1328,20 @@ class Window(object):
                 data3 = np.append(temp2, val2)
                 data4 = np.append(temp3, val3)
 
-
                 for t in range(5):
-                    self.xdata.append(self.xdata[1999]+(1) )
+                    self.xdata.append(self.xdata[1999]+(1))
 
                 self.curve1.setData(data2)
-                self.curve2.setData(x = self.xdata, y = data1)
-                self.curve3.setData(x = self.xdata, y = data3)
-                self.curve4.setData(x = self.xdata, y = data4)
+                self.curve2.setData(x=self.xdata, y=data1)
+                self.curve3.setData(x=self.xdata, y=data3)
+                self.curve4.setData(x=self.xdata, y=data4)
 
-                peak = np.max(data2)
+                peak = np.max(data1)
+                dip = np.min(data1)
 
                 ptr1 += 5
                 index[1] += 1
-                
+
                 if index[0] == 1:
                     connection = sql.connect("vascularsim.db")
                     cursor = connection.cursor()
@@ -1318,7 +1353,7 @@ class Window(object):
                     rows = cursor.fetchone()
                     pwv = rows[0]
                     self.pwv_label_1.setText(str(pwv))
-                    
+
                     cursor.execute("SELECT PEP_7 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
                     self.dt_label_2.setText(str(rows[0]))
@@ -1331,7 +1366,7 @@ class Window(object):
                     cursor.execute("SELECT PEP_9 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
                     self.dt_label_3.setText(str(rows[0]))
-                    
+
                     cursor.execute("SELECT PWV_9 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
                     pwv = rows[0]
@@ -1339,7 +1374,7 @@ class Window(object):
                     connection.close()
 
             else:
-               
+
                 if index[0] == 1:
                     connection = sql.connect("vascularsim.db")
                     cursor = connection.cursor()
@@ -1364,7 +1399,7 @@ class Window(object):
                     cursor.execute("SELECT PEP_9 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
                     self.dt_label_3.setText(str(rows[0]))
-                    
+
                     cursor.execute("SELECT PWV_9 FROM HPN WHERE ID = 1")
                     rows = cursor.fetchone()
                     pwv = rows[0]
@@ -1372,51 +1407,69 @@ class Window(object):
                     connection.close()
 
                 val, val1, val2, val3 = retrieve()
-                
-                data1[ptr1 : index[1]*5] = val[0:5]
-                data2[ptr1 : index[1]*5] = val1[0:5]
-                data3[ptr1 : index[1]*5] = val2[0:5]
-                data4[ptr1 : index[1]*5] = val3[0:5]
 
-                try :
+                data1[ptr1: index[1]*5] = val[0:5]
+                data2[ptr1: index[1]*5] = val1[0:5]
+                data3[ptr1: index[1]*5] = val2[0:5]
+                data4[ptr1: index[1]*5] = val3[0:5]
+
+                try:
                     self.curve1.setData(data2[: index[1]*5])
-                    self.curve2.setData(x = list(itertools.islice(self.xdata, 0, int(index[1]*5) )) , y = data1[: index[1]*5])
+                    self.curve2.setData(x=list(itertools.islice(
+                        self.xdata, 0, int(index[1]*5))), y=data1[: index[1]*5])
                     self.curve3.setData(data3[: index[1]*5])
-                    self.curve4.setData(x = list(itertools.islice(self.xdata, 0, int(index[1]*5) )) , y = data4[: index[1]*5])
+                    self.curve4.setData(x=list(itertools.islice(
+                        self.xdata, 0, int(index[1]*5))), y=data4[: index[1]*5])
 
                 except Exception as e:
                     self.alert(str(e))
-                
-                peak = np.max(data2)
-                
+
+                peak = np.max(data1[: index[1]*5])
+                dip = np.min(data1[: index[1]*5])
+
                 ptr1 += 5
                 index[1] += 1
 
+            baro_timer = baro_timer + 1
 
-            
-            #print(data2)
-            self.sbpbox.setText(str(peak*100))
+            if baroreflex:
+                rng = np.random.default_rng()
+                random_val_peak = rng.choice([1, 2, 3])
+                random_val_dip = rng.choice([10, 11, 12, 13])
+
+                if baro_timer % 100 == 0:
+                    self.sbpbox.setText(str((peak)+random_val_peak))
+                    self.dbpbox.setText(str((dip)+random_val_dip))
+
+            else:
+                if int(self.hrbox.text()) >= 60 or int(self.hrbox.text()) >= 72:
+                    self.sbpbox.setText(str(peak+8))
+                    self.dbpbox.setText(str((dip+15)))
+                else:
+                    self.sbpbox.setText(str(peak))
+                    self.dbpbox.setText(str((dip+8)))
 
     def process_exists(self, process_name):
-            call = 'TASKLIST', '/FI', 'imagename eq %s' % process_name
-            output = subprocess.check_output(call).decode()
-            last_line = output.strip().split('\r\n')[-1]
-            return last_line.lower().startswith(process_name.lower())
+        call = 'TASKLIST', '/FI', 'imagename eq %s' % process_name
+        output = subprocess.check_output(call).decode()
+        last_line = output.strip().split('\r\n')[-1]
+        return last_line.lower().startswith(process_name.lower())
 
     def run(self):
         global speed
-        
+
         try:
             if self.process_exists('main.exe'):
                 self.timer.start(speed)
                 self.alert(" SIMULATING...    ")
-        
+
             else:
-                subprocess.Popen("./main/main.exe",shell=False,close_fds=False)
+                subprocess.Popen("./main/main.exe",
+                                 shell=False, close_fds=False)
                 self.timer.timeout.connect(self.update)
                 self.timer.start(speed)
                 self.alert(" SIMULATING...    ")
-    
+
         except Exception as e:
             print(str(e))
 
@@ -1426,8 +1479,10 @@ class Window(object):
     def alert(self, msg):
         alert = QMessageBox()
         alert.setWindowTitle("Alert!!")
-        alert.setWindowFlag(Qt.AA_EnableHighDpiScaling | Qt.FramelessWindowHint)
-        alert.setStyleSheet("background-color: rgb(60, 60, 60);\n" "color: rgb(240, 240, 240);\n")
+        alert.setWindowFlag(Qt.AA_EnableHighDpiScaling |
+                            Qt.FramelessWindowHint)
+        alert.setStyleSheet(
+            "background-color: rgb(60, 60, 60);\n" "color: rgb(240, 240, 240);\n")
         alert.setText(msg)
         alert.exec_()
 
@@ -1451,10 +1506,8 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     app.aboutToQuit.connect(exit)
-    
+
     wid = QMainWindow()
     ui = Window(wid)
     wid.show()
-    sys.exit(app.exec())    
-
-
+    sys.exit(app.exec())

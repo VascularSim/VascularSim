@@ -340,7 +340,7 @@ def system_simulator(t, x, Vin, clock):
 PF = 450
 
 # Set step size
-dt = 0.001
+dt = 0.002
 
 # Array to store 1st iteration values to calculate dt
 system_dt = np.empty(11)
@@ -442,7 +442,7 @@ while i < n:
     # Function to be given for interpolation (fp)
     it = np.multiply((1 - np.floor((np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) + 0.7)), (PF * (np.square(np.sin(3.14 * (np.multiply(((clock / (60 / HR)) - np.floor(clock / (60 / HR))), (60 / HR))) / 0.3)))))    
 
-    pulse = baro_pulse[i*1000:(i+1)*1000]
+    pulse = baro_pulse[i*500:(i+1)*500]
     
     # Solving the Avolio model using Radau method
     simulation_output = (solve_ivp(system_simulator, [i, i+1], system_init, args=(pulse, clock), method='Radau', t_eval=clock, first_step = 0.01, rtol = 1e-1, atol = 1e-1)).y

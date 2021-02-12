@@ -426,6 +426,7 @@ while i < n:
 
     # Solving the Avolio model using Radau method
     simulation_output = (solve_ivp(system_simulator, [i, i+1], system_init, args=(pulse, clock), method='Radau', t_eval=clock, first_step = 0.01, rtol = 1e-1, atol = 1e-1)).y
+    
     # Update the initial value to be given to the solver as the last value of the previous iteration
     system_init = simulation_output[:,-1] 
     
